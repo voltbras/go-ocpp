@@ -1,18 +1,12 @@
-# go-ocpp
-v1.5 OCPP implementation in Golang
-
-# Usage
-## Central System
-Your `Handler` struct must implement the `HandleEnvelope` method:
-
-```go
-package handler
+package main
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/eduhenke/go-ocpp"
+	"github.com/eduhenke/go-ocpp/cstationsim"
 	"github.com/eduhenke/go-ocpp/csystem"
 	"github.com/eduhenke/go-ocpp/messages"
 )
@@ -34,7 +28,6 @@ func (h *Handler) HandleEnvelope(env ocpp.Envelope) (interface{}, error) {
 	switch req := env.Body.Content.(type) {
 	case *messages.BootNotificationRequest:
 		return messages.BootNotificationResponse{
-            // accept chargepoint in the network
 			Status:            messages.RegistrationStatusAccepted,
 			CurrentTime:       time.Now(),
 			HeartbeatInterval: 60,
@@ -54,23 +47,20 @@ func (h *Handler) HandleEnvelope(env ocpp.Envelope) (interface{}, error) {
 	}
 }
 
-```
-
-## Chargepoint Simulator
-```go
-import "github.com/eduhenke/go-ocpp/cstationsim"
-
 func main() {
-    simPort := ":5050"
-    centralSystemURL := "http://localhost:12811"
-    reply, err := sim.CsService.BootNotification(messages.BootNotificationRequest{
+	csys := Handler{}
+	go csys.Run(":12811")
+
+	sim := cstationsim.NewStation(":12812", "http://localhost:12811")
+	reply, err := sim.CsService.BootNotification(messages.BootNotificationRequest{
+		ChargePointVendor:       "Vendor",
 		ChargePointModel:        "Simulator-01",
 		ChargePointSerialNumber: "1337",
+		ChargeBoxSerialNumber:   "1337",
+		FirmwareVersion:         "1.7.0",
 	})
 	if err != nil {
 		fmt.Println("could't send boot notification:", err)
 	}
 	fmt.Println("got reply:", reply)
-
 }
-```
