@@ -91,7 +91,7 @@ func (s *Client) Call(soapAction string, request, response interface{}) error {
 
 	respVal, contentVal := reflect.ValueOf(response), reflect.ValueOf(respEnvelope.Body.Content)
 	if respVal.Type() != contentVal.Type() {
-		log.Panic("incompatible types", respVal.Type().String(), contentVal.Type().String())
+		panic("incompatible types:" + respVal.Type().String() + contentVal.Type().String())
 	}
 
 	respVal.Elem().Set(contentVal.Elem())

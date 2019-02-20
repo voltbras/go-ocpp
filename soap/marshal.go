@@ -2,8 +2,8 @@ package soap
 
 import (
 	"encoding/xml"
+	"errors"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/eduhenke/go-ocpp/messages"
 )
 
@@ -148,9 +148,7 @@ func (b *receivedBody) UnmarshalXML(d *xml.Decoder, start xml.StartElement) erro
 			case "sendLocalListResponse":
 				msg = new(messages.SendLocalListResponse)
 			default:
-				log.
-					WithField("message", tt.Name.Local).
-					Info("Not implemented unmarshal for this OCPP message")
+				return errors.New("not implemented unmarshal for this OCPP message:" + tt.Name.Local)
 			}
 			// known child element found, decode it
 			if msg != nil {
