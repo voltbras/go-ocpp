@@ -27,6 +27,9 @@ func NewClient(url string) *Client {
 
 // Call performs HTTP POST request
 func (s *Client) Call(soapAction string, request, response interface{}) error {
+	if len(s.url) == 0 {
+		return errors.New("no URL to request")
+	}
 	envelope := toSendEnvelope{XMLNS: "http://www.w3.org/2003/05/soap-envelope"}
 	envelope.Header = &toSendHeader{
 		XMLNS:     "http://www.w3.org/2005/08/addressing",

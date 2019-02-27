@@ -2,8 +2,6 @@ package soap
 
 import (
 	"encoding/xml"
-
-	"github.com/eduhenke/go-ocpp/messages"
 )
 
 type Envelope receivedEnvelope
@@ -75,7 +73,7 @@ type toSendHeader struct {
 	Action            string `xml:"wsa5:Action"`
 	MessageID         string `xml:"wsa5:MessageID"`
 	From              toSendFrom
-	ChargeBoxIdentity messages.ChargeBoxIdentity `xml:"urn://Ocpp/Cs/2012/06/ chargeBoxIdentity"`
+	ChargeBoxIdentity string `xml:"urn://Ocpp/Cs/2012/06/ chargeBoxIdentity"`
 }
 
 type toSendBody struct {
