@@ -262,7 +262,7 @@ type StopTransactionRequest struct {
 type StopTransactionResponse struct {
 	XMLName xml.Name `xml:"urn://Ocpp/Cs/2012/06/ stopTransactionResponse"`
 
-	IdTagInfo IdTagInfo `xml:"idTagInfo,omitempty"`
+	IdTagInfo *IdTagInfo `xml:"idTagInfo,omitempty"`
 }
 
 type HeartbeatRequest struct {

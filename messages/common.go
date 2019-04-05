@@ -41,7 +41,7 @@ const (
 type IdTagInfo struct {
 	Status AuthorizationStatus `xml:"status,omitempty"`
 
-	ExpiryDate time.Time `xml:"expiryDate,omitempty"`
+	ExpiryDate *time.Time `xml:"expiryDate,omitempty"`
 
 	ParentIdTag IdToken `xml:"parentIdTag,omitempty"`
 }
