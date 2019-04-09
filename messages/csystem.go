@@ -274,23 +274,24 @@ type HeartbeatResponse struct {
 
 	CurrentTime time.Time `xml:"currentTime,omitempty"`
 }
+type SampledValue struct {
+	Value string `xml:",chardata"`
+
+	Context ReadingContext `xml:"context,attr,omitempty"`
+
+	Format ValueFormat `xml:"format,attr,omitempty"`
+
+	Measurand Measurand `xml:"measurand,attr,omitempty"`
+
+	Location Location `xml:"location,attr,omitempty"`
+
+	Unit UnitOfMeasure `xml:"unit,attr,omitempty"`
+}
 
 type MeterValue struct {
 	Timestamp time.Time `xml:"timestamp,omitempty"`
 
-	Value []struct {
-		Value string
-
-		Context ReadingContext `xml:"context,attr,omitempty"`
-
-		Format ValueFormat `xml:"format,attr,omitempty"`
-
-		Measurand Measurand `xml:"measurand,attr,omitempty"`
-
-		Location Location `xml:"location,attr,omitempty"`
-
-		Unit UnitOfMeasure `xml:"unit,attr,omitempty"`
-	} `xml:"value,omitempty"`
+	SampledValues []SampledValue`xml:"value,omitempty" bson:"sampledValues,omitempty" json:"sampledValues,omitempty"`
 }
 
 type MeterValuesRequest struct {
