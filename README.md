@@ -14,7 +14,7 @@ import (
 
 	"github.com/eduhenke/go-ocpp"
 	"github.com/eduhenke/go-ocpp/csystem"
-	"github.com/eduhenke/go-ocpp/messages"
+	"github.com/eduhenke/go-ocpp/messages/v15"
 )
 
 type Handler struct{}
@@ -56,7 +56,7 @@ func (h *Handler) HandleEnvelope(env ocpp.Envelope) (interface{}, error) {
 
 ```
 
-## Chargepoint Simulator
+## ChargePoint Simulator
 ```go
 import "github.com/eduhenke/go-ocpp/cstationsim"
 

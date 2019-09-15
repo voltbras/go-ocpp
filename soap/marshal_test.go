@@ -3,7 +3,7 @@ package soap
 import (
 	"testing"
 
-	"github.com/eduhenke/go-ocpp/messages"
+	"github.com/eduhenke/go-ocpp/messages/v15"
 )
 
 const bootNotification = `
