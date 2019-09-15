@@ -3,11 +3,11 @@ package csystem
 import (
 	"encoding/json"
 	"errors"
-	"github.com/eduhenke/go-ocpp/messages"
-	"log"
+	"github.com/eduhenke/go-ocpp/internal/log"
 	"net/http"
-	"os"
 	"strings"
+
+	"github.com/eduhenke/go-ocpp/messages"
 
 	"github.com/eduhenke/go-ocpp"
 	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
@@ -16,12 +16,6 @@ import (
 	"github.com/eduhenke/go-ocpp/wsconn"
 	ws "github.com/gorilla/websocket"
 )
-
-var logger *log.Logger
-
-func init() {
-	logger = log.New(os.Stderr, "xxx: ", log.Ldate|log.Ltime|log.Lshortfile)
-}
 
 // ChargePointMessageHandler handles the OCPP messages coming from the charger
 type ChargePointMessageHandler func(cprequest cpreq.ChargePointRequest, cpID string) (cpres.ChargePointResponse, error)
@@ -71,47 +65,55 @@ func (csys *CentralSystem) Run(port string, cphandler ChargePointMessageHandler)
 			if err != nil {
 				return
 			}
+			csys.Conns[cpID] = conn
+			log.Debug("Accepted new WS conn: %v. from: %v\n", conn, cpID)
 			for {
 				msg, err := conn.ReadMessage()
 				if err != nil {
+					log.Error("On receiving a message: %w\n", err)
 					_ = conn.Close()
 					delete(csys.Conns, cpID)
 					break
 				}
-				// logger.Printf("Received a message: %v\n", msg)
+				log.Debug("Received a message: %v\n", msg)
 				id := msg.MessageID()
 				req, wserr := convert(msg)
-				// logger.Printf("Converted message to cpreq: %v\n", req)
+				log.Debug("Converted message to cpreq: %v\n", req)
 				if wserr != wsconn.Nil {
 					continue
 				}
-				csys.Conns[cpID] = conn
-				logger.Printf("Sending cpreq to handler from cpID: %s\n", cpID)
+				log.Debug("Sending cpreq to handler from cpID: %s\n", cpID)
 				resp, err := cphandler(req, cpID)
-				logger.Printf("Handler responded: %v\n", resp)
+				log.Debug("Handler responded: %v\n", resp)
 				msg = unconvert(id, resp, err)
-				logger.Printf("Sending message [struct]: %v\n", msg)
+				log.Debug("Sending message [struct]: %v\n", msg)
 				bts, err := json.Marshal(msg)
 				if err != nil {
 					continue
 				}
-				// logger.Printf("Sending message [raw]: %v\n", string(bts))
+				log.Debug("Sending message [raw]: %v\n", string(bts))
 				err = conn.Conn.WriteMessage(ws.TextMessage, bts)
 				if err != nil {
+					log.Error("On sending message %w\n", err)
 					continue
 				}
-				// logger.Println("Sent message!")
+				log.Debug("Sent message!\n")
+			}
+		} else {
+			log.Debug("New SOAP request\n")
+			err := soap.Handle(w, r, func(request messages.Request, cpID string) (messages.Response, error) {
+				req, ok := request.(cpreq.ChargePointRequest)
+				if !ok {
+					return nil, errors.New("request is not a cprequest")
+				}
+				return cphandler(req, cpID)
+			})
+			if err != nil {
+				log.Error("Couldn't handle SOAP request: %w", err)
 			}
 		}
 
-		// TODO: check whether JSON/SOAP and their versions
-		soap.Handler(w, r, func (request messages.Request, cpID string) (messages.Response, error) {
-			cprequest, ok := request.(cpreq.ChargePointRequest)
-			if !ok {
-				return nil, errors.New("request is not a cprequest")
-			}
-			return cphandler(cprequest, cpID)
-		})
 	})
+	log.Debug("Central system running on port: %s\n", port)
 	return http.ListenAndServe(port, nil)
 }

@@ -76,7 +76,7 @@ type MeterValues struct {
 	chargepointRequest
 	XMLName xml.Name `json:"-" xml:"urn://Ocpp/Cs/2012/06/ meterValuesRequest"`
 
-	ConnectorId   int                `json:"connectorId" xml:"connectorId,omitempty"`
+	ConnectorId int `json:"connectorId" xml:"connectorId,omitempty"`
 	// MeterValue in OCPP v1.5 is values
 	MeterValue    []*MeterValueItems `json:"meterValue" xml:"values,omitempty"`
 	TransactionId int32              `json:"transactionId,omitempty" xml:"transactionId,omitempty"`
@@ -151,46 +151,17 @@ func (m *StartTransaction) Action() string              { return "StartTransacti
 func (m *StatusNotification) Action() string            { return "StatusNotification" }
 func (m *StopTransaction) Action() string               { return "StopTransaction" }
 
-func (m *Authorize) GetChargePointResponse() cpres.ChargePointResponse { return &cpres.Authorize{} }
-func (m *BootNotification) GetChargePointResponse() cpres.ChargePointResponse {
-	return &cpres.BootNotification{}
-}
-func (m *DataTransfer) GetChargePointResponse() cpres.ChargePointResponse {
-	return &cpres.DataTransfer{}
-}
-func (m *DiagnosticsStatusNotification) GetChargePointResponse() cpres.ChargePointResponse {
+func (m *Authorize) GetResponse() messages.Response        { return &cpres.Authorize{} }
+func (m *BootNotification) GetResponse() messages.Response { return &cpres.BootNotification{} }
+func (m *DataTransfer) GetResponse() messages.Response     { return &cpres.DataTransfer{} }
+func (m *DiagnosticsStatusNotification) GetResponse() messages.Response {
 	return &cpres.DiagnosticsStatusNotification{}
 }
-func (m *FirmwareStatusNotification) GetChargePointResponse() cpres.ChargePointResponse {
+func (m *FirmwareStatusNotification) GetResponse() messages.Response {
 	return &cpres.FirmwareStatusNotification{}
 }
-func (m *Heartbeat) GetChargePointResponse() cpres.ChargePointResponse { return &cpres.Heartbeat{} }
-func (m *MeterValues) GetChargePointResponse() cpres.ChargePointResponse {
-	return &cpres.MeterValues{}
-}
-func (m *StartTransaction) GetChargePointResponse() cpres.ChargePointResponse {
-	return &cpres.StartTransaction{}
-}
-func (m *StatusNotification) GetChargePointResponse() cpres.ChargePointResponse {
-	return &cpres.StatusNotification{}
-}
-func (m *StopTransaction) GetChargePointResponse() cpres.ChargePointResponse {
-	return &cpres.StopTransaction{}
-}
-
-func (m *Authorize) GetResponse() messages.Response        { return m.GetChargePointResponse() }
-func (m *BootNotification) GetResponse() messages.Response { return m.GetChargePointResponse() }
-func (m *DataTransfer) GetResponse() messages.Response     { return m.GetChargePointResponse() }
-func (m *DiagnosticsStatusNotification) GetResponse() messages.Response {
-	return m.GetChargePointResponse()
-}
-func (m *FirmwareStatusNotification) GetResponse() messages.Response {
-	return m.GetChargePointResponse()
-}
-func (m *Heartbeat) GetResponse() messages.Response        { return m.GetChargePointResponse() }
-func (m *MeterValues) GetResponse() messages.Response      { return m.GetChargePointResponse() }
-func (m *StartTransaction) GetResponse() messages.Response { return m.GetChargePointResponse() }
-func (m *StatusNotification) GetResponse() messages.Response {
-	return m.GetChargePointResponse()
-}
-func (m *StopTransaction) GetResponse() messages.Response { return m.GetChargePointResponse() }
+func (m *Heartbeat) GetResponse() messages.Response          { return &cpres.Heartbeat{} }
+func (m *MeterValues) GetResponse() messages.Response        { return &cpres.MeterValues{} }
+func (m *StartTransaction) GetResponse() messages.Response   { return &cpres.StartTransaction{} }
+func (m *StatusNotification) GetResponse() messages.Response { return &cpres.StatusNotification{} }
+func (m *StopTransaction) GetResponse() messages.Response    { return &cpres.StopTransaction{} }

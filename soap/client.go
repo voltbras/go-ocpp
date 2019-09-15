@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"errors"
+	"github.com/eduhenke/go-ocpp/internal/log"
 	"github.com/eduhenke/go-ocpp/messages"
 	"io/ioutil"
 	"net"
@@ -12,7 +13,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	log "github.com/sirupsen/logrus"
 )
 
 type Client struct {
@@ -26,18 +26,28 @@ func NewClient(url string) *Client {
 	}
 }
 
+type CallOptionsFrom toSendFrom
+type CallOptions struct {
+	From CallOptionsFrom
+	ChargeBoxIdentity string
+}
+
 // Call performs HTTP POST request
-func (s *Client) Call(soapAction string, request messages.Request, response messages.Response) error {
+func (s *Client) Call(soapAction string, request messages.Request, response messages.Response, options *CallOptions) error {
 	if len(s.url) == 0 {
 		return errors.New("no URL to request")
 	}
+
 	envelope := toSendEnvelope{XMLNS: "http://www.w3.org/2003/05/soap-envelope"}
 	envelope.Header = &toSendHeader{
 		XMLNS:     "http://www.w3.org/2005/08/addressing",
 		Action:    soapAction,
 		To:        s.url,
-		From:      toSendFrom{Address: "http://192.168.10.1:8080"},
 		MessageID: "uuid:" + uuid.New().String(),
+	}
+	if options != nil {
+		envelope.Header.From = toSendFrom(options.From)
+		envelope.Header.ChargeBoxIdentity = options.ChargeBoxIdentity
 	}
 	envelope.Body.Content = request
 	buffer := new(bytes.Buffer)
@@ -52,9 +62,8 @@ func (s *Client) Call(soapAction string, request messages.Request, response mess
 		return err
 	}
 	rawReq := buffer.Bytes()
-	log.
-		WithField("bytes", len(rawReq)).
-		Trace("Sending request\n", string(rawReq))
+	log.Debug("Sending request with %d bytes\n", len(rawReq))
+	log.Debug("Sending raw request:\n%s", string(rawReq))
 
 	req, err := http.NewRequest("POST", s.url, buffer)
 	if err != nil {

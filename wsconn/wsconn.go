@@ -32,7 +32,7 @@ var upgrader = ws.Upgrader{
 func New(w http.ResponseWriter, r *http.Request, supportedVersions []ocpp.Version) (*Conn, error) {
 	upgraderHeader := http.Header{}
 	for _, v := range supportedVersions {
-		upgraderHeader.Add("Sec-WebSocket-Protocol", string(v))
+		upgraderHeader.Add("Sec-WebSocket-Protocol", "ocpp"+string(v))
 	}
 	socket, err := upgrader.Upgrade(w, r, upgraderHeader)
 	conn := &Conn{Conn: socket}
