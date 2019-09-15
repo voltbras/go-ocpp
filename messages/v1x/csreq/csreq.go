@@ -1,14 +1,18 @@
 package csreq
 
-import "github.com/eduhenke/go-ocpp/messages/v16/csres"
+import (
+	"github.com/eduhenke/go-ocpp/messages"
+	"github.com/eduhenke/go-ocpp/messages/v1x/csres"
+)
 
 // CentralSystemRequest is a request coming from the central system to the chargepoint
 type CentralSystemRequest interface {
+	messages.Request
 	IsCentralSystemRequest()
-	Action() string
-	GetResponseObject() csres.CentralSystemResponse
+	GetCentralSystemResponse() csres.CentralSystemResponse
 }
 
 type centralSystemRequest struct{}
 
 func (csreq *centralSystemRequest) IsCentralSystemRequest() {}
+func (csreq *centralSystemRequest) IsRequest() {}

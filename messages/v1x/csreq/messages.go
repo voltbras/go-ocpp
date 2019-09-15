@@ -3,7 +3,8 @@ package csreq
 import (
 	"time"
 
-	"github.com/eduhenke/go-ocpp/messages/v16/csres"
+	"github.com/eduhenke/go-ocpp/messages"
+	"github.com/eduhenke/go-ocpp/messages/v1x/csres"
 )
 
 // CancelReservation
@@ -123,14 +124,14 @@ type LocalAuthorizationListItems struct {
 type RemoteStartTransaction struct {
 	centralSystemRequest
 	ChargingProfile *ChargingProfile `json:"chargingProfile,omitempty"`
-	ConnectorId     int              `json:"connectorId,omitempty"`
+	ConnectorId     int32            `json:"connectorId,omitempty"`
 	IdTag           string           `json:"idTag"`
 }
 
 // RemoteStopTransaction
 type RemoteStopTransaction struct {
 	centralSystemRequest
-	TransactionId int `json:"transactionId"`
+	TransactionId int32 `json:"transactionId"`
 }
 
 // ReserveNow
@@ -199,74 +200,137 @@ type SetChargingProfile struct {
 	CsChargingProfiles *CsChargingProfiles `json:"csChargingProfiles"`
 }
 
-func (strct *CancelReservation) Action() string      { return "CancelReservation" }
-func (strct *ChangeAvailability) Action() string     { return "ChangeAvailability" }
-func (strct *ChangeConfiguration) Action() string    { return "ChangeConfiguration" }
-func (strct *ClearCache) Action() string             { return "ClearCache" }
-func (strct *ClearChargingProfile) Action() string   { return "ClearChargingProfile" }
-func (strct *DataTransfer) Action() string           { return "DataTransfer" }
-func (strct *GetCompositeSchedule) Action() string   { return "GetCompositeSchedule" }
-func (strct *GetConfiguration) Action() string       { return "GetConfiguration" }
-func (strct *GetDiagnostics) Action() string         { return "GetDiagnostics" }
-func (strct *GetLocalListVersion) Action() string    { return "GetLocalListVersion" }
-func (strct *RemoteStartTransaction) Action() string { return "RemoteStartTransaction" }
-func (strct *RemoteStopTransaction) Action() string  { return "RemoteStopTransaction" }
-func (strct *ReserveNow) Action() string             { return "ReserveNow" }
-func (strct *Reset) Action() string                  { return "Reset" }
-func (strct *SendLocalList) Action() string          { return "SendLocalList" }
-func (strct *TriggerMessage) Action() string         { return "TriggerMessage" }
-func (strct *UnlockConnector) Action() string        { return "UnlockConnector" }
-func (strct *UpdateFirmware) Action() string         { return "UpdateFirmware" }
-func (strct *SetChargingProfile) Action() string     { return "SetChargingProfile" }
+func (m *CancelReservation) Action() string      { return "CancelReservation" }
+func (m *ChangeAvailability) Action() string     { return "ChangeAvailability" }
+func (m *ChangeConfiguration) Action() string    { return "ChangeConfiguration" }
+func (m *ClearCache) Action() string             { return "ClearCache" }
+func (m *ClearChargingProfile) Action() string   { return "ClearChargingProfile" }
+func (m *DataTransfer) Action() string           { return "DataTransfer" }
+func (m *GetCompositeSchedule) Action() string   { return "GetCompositeSchedule" }
+func (m *GetConfiguration) Action() string       { return "GetConfiguration" }
+func (m *GetDiagnostics) Action() string         { return "GetDiagnostics" }
+func (m *GetLocalListVersion) Action() string    { return "GetLocalListVersion" }
+func (m *RemoteStartTransaction) Action() string { return "RemoteStartTransaction" }
+func (m *RemoteStopTransaction) Action() string  { return "RemoteStopTransaction" }
+func (m *ReserveNow) Action() string             { return "ReserveNow" }
+func (m *Reset) Action() string                  { return "Reset" }
+func (m *SendLocalList) Action() string          { return "SendLocalList" }
+func (m *TriggerMessage) Action() string         { return "TriggerMessage" }
+func (m *UnlockConnector) Action() string        { return "UnlockConnector" }
+func (m *UpdateFirmware) Action() string         { return "UpdateFirmware" }
+func (m *SetChargingProfile) Action() string     { return "SetChargingProfile" }
 
-func (strct *CancelReservation) GetResponseObject() csres.CentralSystemResponse {
+func (m *CancelReservation) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.CancelReservation{}
 }
-func (strct *ChangeAvailability) GetResponseObject() csres.CentralSystemResponse {
+func (m *ChangeAvailability) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.ChangeAvailability{}
 }
-func (strct *ChangeConfiguration) GetResponseObject() csres.CentralSystemResponse {
+func (m *ChangeConfiguration) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.ChangeConfiguration{}
 }
-func (strct *ClearCache) GetResponseObject() csres.CentralSystemResponse { return &csres.ClearCache{} }
-func (strct *ClearChargingProfile) GetResponseObject() csres.CentralSystemResponse {
+func (m *ClearCache) GetCentralSystemResponse() csres.CentralSystemResponse {
+	return &csres.ClearCache{}
+}
+func (m *ClearChargingProfile) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.ClearChargingProfile{}
 }
-func (strct *DataTransfer) GetResponseObject() csres.CentralSystemResponse {
+func (m *DataTransfer) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.DataTransfer{}
 }
-func (strct *GetCompositeSchedule) GetResponseObject() csres.CentralSystemResponse {
+func (m *GetCompositeSchedule) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.GetCompositeSchedule{}
 }
-func (strct *GetConfiguration) GetResponseObject() csres.CentralSystemResponse {
+func (m *GetConfiguration) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.GetConfiguration{}
 }
-func (strct *GetDiagnostics) GetResponseObject() csres.CentralSystemResponse {
+func (m *GetDiagnostics) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.GetDiagnostics{}
 }
-func (strct *GetLocalListVersion) GetResponseObject() csres.CentralSystemResponse {
+func (m *GetLocalListVersion) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.GetLocalListVersion{}
 }
-func (strct *RemoteStartTransaction) GetResponseObject() csres.CentralSystemResponse {
+func (m *RemoteStartTransaction) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.RemoteStartTransaction{}
 }
-func (strct *RemoteStopTransaction) GetResponseObject() csres.CentralSystemResponse {
+func (m *RemoteStopTransaction) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.RemoteStopTransaction{}
 }
-func (strct *ReserveNow) GetResponseObject() csres.CentralSystemResponse { return &csres.ReserveNow{} }
-func (strct *Reset) GetResponseObject() csres.CentralSystemResponse      { return &csres.Reset{} }
-func (strct *SendLocalList) GetResponseObject() csres.CentralSystemResponse {
+func (m *ReserveNow) GetCentralSystemResponse() csres.CentralSystemResponse {
+	return &csres.ReserveNow{}
+}
+func (m *Reset) GetCentralSystemResponse() csres.CentralSystemResponse { return &csres.Reset{} }
+func (m *SendLocalList) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.SendLocalList{}
 }
-func (strct *TriggerMessage) GetResponseObject() csres.CentralSystemResponse {
+func (m *TriggerMessage) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.TriggerMessage{}
 }
-func (strct *UnlockConnector) GetResponseObject() csres.CentralSystemResponse {
+func (m *UnlockConnector) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.UnlockConnector{}
 }
-func (strct *UpdateFirmware) GetResponseObject() csres.CentralSystemResponse {
+func (m *UpdateFirmware) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.UpdateFirmware{}
 }
-func (strct *SetChargingProfile) GetResponseObject() csres.CentralSystemResponse {
+func (m *SetChargingProfile) GetCentralSystemResponse() csres.CentralSystemResponse {
 	return &csres.SetChargingProfile{}
+}
+
+func (m *CancelReservation) GetResponse() messages.Response {
+
+	return m.GetCentralSystemResponse()
+}
+func (m *ChangeAvailability) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *ChangeConfiguration) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *ClearCache) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *ClearChargingProfile) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *DataTransfer) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *GetCompositeSchedule) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *GetConfiguration) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *GetDiagnostics) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *GetLocalListVersion) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *RemoteStartTransaction) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *RemoteStopTransaction) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *ReserveNow) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *Reset) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *SendLocalList) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *TriggerMessage) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *UnlockConnector) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *UpdateFirmware) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
+}
+func (m *SetChargingProfile) GetResponse() messages.Response {
+	return m.GetCentralSystemResponse()
 }

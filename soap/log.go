@@ -1,6 +1,7 @@
 package soap
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -15,6 +16,7 @@ func logAndUnmarshal(req *http.Request) (receivedEnvelope, error) {
 			"from":  req.RemoteAddr,
 		}).
 		Trace("received request\n", string(rawReq))
+	fmt.Println(string(rawReq))
 
 	return Unmarshal(rawReq)
 }

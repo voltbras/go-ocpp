@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"errors"
+	"github.com/eduhenke/go-ocpp/messages"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -26,7 +27,7 @@ func NewClient(url string) *Client {
 }
 
 // Call performs HTTP POST request
-func (s *Client) Call(soapAction string, request, response interface{}) error {
+func (s *Client) Call(soapAction string, request messages.Request, response messages.Response) error {
 	if len(s.url) == 0 {
 		return errors.New("no URL to request")
 	}

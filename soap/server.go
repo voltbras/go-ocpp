@@ -3,22 +3,29 @@ package soap
 import (
 	"net/http"
 
+	"github.com/eduhenke/go-ocpp/messages"
+
+	"github.com/eduhenke/go-ocpp"
+
 	log "github.com/sirupsen/logrus"
 )
 
-type HandlerCallback (func(Envelope) (interface{}, error))
-
-func Handler(w http.ResponseWriter, r *http.Request, f HandlerCallback) {
+func Handler(w http.ResponseWriter, r *http.Request, handle ocpp.MessageHandler) {
 	defer r.Body.Close()
 
-	req, err := logAndUnmarshal(r)
+	reqEnv, err := logAndUnmarshal(r)
 
 	if err != nil {
 		log.WithError(err).Error("couldn't decode request")
 		return
 	}
 
-	resp, err := f(Envelope(req))
+	req, ok := reqEnv.Body.Content.(messages.Request)
+	if !ok {
+		panic("received message is not a request")
+	}
+
+	resp, err := handle(req, reqEnv.Header.ChargeBoxIdentity)
 	if err != nil {
 		log.WithError(err).Error("couldn't handle request")
 	}

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (strct *CancelReservation) MarshalJSON() ([]byte, error) {
+func (m *CancelReservation) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -19,7 +19,7 @@ func (strct *CancelReservation) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -31,7 +31,7 @@ func (strct *CancelReservation) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *CancelReservation) UnmarshalJSON(b []byte) error {
+func (m *CancelReservation) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -41,7 +41,7 @@ func (strct *CancelReservation) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -56,7 +56,7 @@ func (strct *CancelReservation) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *ChangeAvailability) MarshalJSON() ([]byte, error) {
+func (m *ChangeAvailability) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -67,7 +67,7 @@ func (strct *ChangeAvailability) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -79,7 +79,7 @@ func (strct *ChangeAvailability) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *ChangeAvailability) UnmarshalJSON(b []byte) error {
+func (m *ChangeAvailability) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -89,7 +89,7 @@ func (strct *ChangeAvailability) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -104,7 +104,7 @@ func (strct *ChangeAvailability) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *ChangeConfiguration) MarshalJSON() ([]byte, error) {
+func (m *ChangeConfiguration) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -115,7 +115,7 @@ func (strct *ChangeConfiguration) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -127,7 +127,7 @@ func (strct *ChangeConfiguration) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *ChangeConfiguration) UnmarshalJSON(b []byte) error {
+func (m *ChangeConfiguration) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -137,7 +137,7 @@ func (strct *ChangeConfiguration) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -152,7 +152,7 @@ func (strct *ChangeConfiguration) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *ChargingSchedule) MarshalJSON() ([]byte, error) {
+func (m *ChargingSchedule) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -163,7 +163,7 @@ func (strct *ChargingSchedule) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"chargingRateUnit\": ")
-	if tmp, err := json.Marshal(strct.ChargingRateUnit); err != nil {
+	if tmp, err := json.Marshal(m.ChargingRateUnit); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -176,7 +176,7 @@ func (strct *ChargingSchedule) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"chargingSchedulePeriod\": ")
-	if tmp, err := json.Marshal(strct.ChargingSchedulePeriod); err != nil {
+	if tmp, err := json.Marshal(m.ChargingSchedulePeriod); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -187,7 +187,7 @@ func (strct *ChargingSchedule) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"duration\": ")
-	if tmp, err := json.Marshal(strct.Duration); err != nil {
+	if tmp, err := json.Marshal(m.Duration); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -198,30 +198,28 @@ func (strct *ChargingSchedule) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"minChargingRate\": ")
-	if tmp, err := json.Marshal(strct.MinChargingRate); err != nil {
+	if tmp, err := json.Marshal(m.MinChargingRate); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
 	}
-	comma = true
-	// Marshal the "startSchedule" field
-	if comma {
+
+	if m.StartSchedule != nil {
 		buf.WriteString(",")
+		buf.WriteString("\"startSchedule\": ")
+		if tmp, err := json.Marshal(m.StartSchedule.Format(time.RFC3339)); err != nil {
+			return nil, err
+		} else {
+			buf.Write(tmp)
+		}
 	}
-	buf.WriteString("\"startSchedule\": ")
-	if tmp, err := json.Marshal(strct.StartSchedule.Format(time.RFC3339)); err != nil {
-		return nil, err
-	} else {
-		buf.Write(tmp)
-	}
-	comma = true
 
 	buf.WriteString("}")
 	rv := buf.Bytes()
 	return rv, nil
 }
 
-func (strct *ChargingSchedule) UnmarshalJSON(b []byte) error {
+func (m *ChargingSchedule) UnmarshalJSON(b []byte) error {
 	chargingRateUnitReceived := false
 	chargingSchedulePeriodReceived := false
 	var jsonMap map[string]json.RawMessage
@@ -232,25 +230,25 @@ func (strct *ChargingSchedule) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "chargingRateUnit":
-			if err := json.Unmarshal([]byte(v), &strct.ChargingRateUnit); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.ChargingRateUnit); err != nil {
 				return err
 			}
 			chargingRateUnitReceived = true
 		case "chargingSchedulePeriod":
-			if err := json.Unmarshal([]byte(v), &strct.ChargingSchedulePeriod); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.ChargingSchedulePeriod); err != nil {
 				return err
 			}
 			chargingSchedulePeriodReceived = true
 		case "duration":
-			if err := json.Unmarshal([]byte(v), &strct.Duration); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Duration); err != nil {
 				return err
 			}
 		case "minChargingRate":
-			if err := json.Unmarshal([]byte(v), &strct.MinChargingRate); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.MinChargingRate); err != nil {
 				return err
 			}
 		case "startSchedule":
-			if err := json.Unmarshal([]byte(v), &strct.StartSchedule); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.StartSchedule); err != nil {
 				return err
 			}
 		}
@@ -266,7 +264,7 @@ func (strct *ChargingSchedule) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *ChargingSchedulePeriodItems) MarshalJSON() ([]byte, error) {
+func (m *ChargingSchedulePeriodItems) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -277,7 +275,7 @@ func (strct *ChargingSchedulePeriodItems) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"limit\": ")
-	if tmp, err := json.Marshal(strct.Limit); err != nil {
+	if tmp, err := json.Marshal(m.Limit); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -288,7 +286,7 @@ func (strct *ChargingSchedulePeriodItems) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"numberPhases\": ")
-	if tmp, err := json.Marshal(strct.NumberPhases); err != nil {
+	if tmp, err := json.Marshal(m.NumberPhases); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -301,7 +299,7 @@ func (strct *ChargingSchedulePeriodItems) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"startPeriod\": ")
-	if tmp, err := json.Marshal(strct.StartPeriod); err != nil {
+	if tmp, err := json.Marshal(m.StartPeriod); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -313,7 +311,7 @@ func (strct *ChargingSchedulePeriodItems) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *ChargingSchedulePeriodItems) UnmarshalJSON(b []byte) error {
+func (m *ChargingSchedulePeriodItems) UnmarshalJSON(b []byte) error {
 	limitReceived := false
 	startPeriodReceived := false
 	var jsonMap map[string]json.RawMessage
@@ -324,16 +322,16 @@ func (strct *ChargingSchedulePeriodItems) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "limit":
-			if err := json.Unmarshal([]byte(v), &strct.Limit); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Limit); err != nil {
 				return err
 			}
 			limitReceived = true
 		case "numberPhases":
-			if err := json.Unmarshal([]byte(v), &strct.NumberPhases); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.NumberPhases); err != nil {
 				return err
 			}
 		case "startPeriod":
-			if err := json.Unmarshal([]byte(v), &strct.StartPeriod); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.StartPeriod); err != nil {
 				return err
 			}
 			startPeriodReceived = true
@@ -350,7 +348,7 @@ func (strct *ChargingSchedulePeriodItems) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *ClearCache) MarshalJSON() ([]byte, error) {
+func (m *ClearCache) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -361,7 +359,7 @@ func (strct *ClearCache) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -373,7 +371,7 @@ func (strct *ClearCache) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *ClearCache) UnmarshalJSON(b []byte) error {
+func (m *ClearCache) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -383,7 +381,7 @@ func (strct *ClearCache) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -398,7 +396,7 @@ func (strct *ClearCache) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *ClearChargingProfile) MarshalJSON() ([]byte, error) {
+func (m *ClearChargingProfile) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -409,7 +407,7 @@ func (strct *ClearChargingProfile) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -421,7 +419,7 @@ func (strct *ClearChargingProfile) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *ClearChargingProfile) UnmarshalJSON(b []byte) error {
+func (m *ClearChargingProfile) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -431,7 +429,7 @@ func (strct *ClearChargingProfile) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -446,7 +444,7 @@ func (strct *ClearChargingProfile) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *ConfigurationKeyItems) MarshalJSON() ([]byte, error) {
+func (m *ConfigurationKeyItems) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -457,7 +455,7 @@ func (strct *ConfigurationKeyItems) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"key\": ")
-	if tmp, err := json.Marshal(strct.Key); err != nil {
+	if tmp, err := json.Marshal(m.Key); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -470,7 +468,7 @@ func (strct *ConfigurationKeyItems) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"readonly\": ")
-	if tmp, err := json.Marshal(strct.Readonly); err != nil {
+	if tmp, err := json.Marshal(m.Readonly); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -481,7 +479,7 @@ func (strct *ConfigurationKeyItems) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"value\": ")
-	if tmp, err := json.Marshal(strct.Value); err != nil {
+	if tmp, err := json.Marshal(m.Value); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -493,7 +491,7 @@ func (strct *ConfigurationKeyItems) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *ConfigurationKeyItems) UnmarshalJSON(b []byte) error {
+func (m *ConfigurationKeyItems) UnmarshalJSON(b []byte) error {
 	keyReceived := false
 	readonlyReceived := false
 	var jsonMap map[string]json.RawMessage
@@ -504,17 +502,17 @@ func (strct *ConfigurationKeyItems) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "key":
-			if err := json.Unmarshal([]byte(v), &strct.Key); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Key); err != nil {
 				return err
 			}
 			keyReceived = true
 		case "readonly":
-			if err := json.Unmarshal([]byte(v), &strct.Readonly); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Readonly); err != nil {
 				return err
 			}
 			readonlyReceived = true
 		case "value":
-			if err := json.Unmarshal([]byte(v), &strct.Value); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Value); err != nil {
 				return err
 			}
 		}
@@ -530,7 +528,7 @@ func (strct *ConfigurationKeyItems) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *DataTransfer) MarshalJSON() ([]byte, error) {
+func (m *DataTransfer) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -539,7 +537,7 @@ func (strct *DataTransfer) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"data\": ")
-	if tmp, err := json.Marshal(strct.Data); err != nil {
+	if tmp, err := json.Marshal(m.Data); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -552,7 +550,7 @@ func (strct *DataTransfer) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -564,7 +562,7 @@ func (strct *DataTransfer) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *DataTransfer) UnmarshalJSON(b []byte) error {
+func (m *DataTransfer) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -574,11 +572,11 @@ func (strct *DataTransfer) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "data":
-			if err := json.Unmarshal([]byte(v), &strct.Data); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Data); err != nil {
 				return err
 			}
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -593,7 +591,7 @@ func (strct *DataTransfer) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *GetCompositeSchedule) MarshalJSON() ([]byte, error) {
+func (m *GetCompositeSchedule) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -602,7 +600,7 @@ func (strct *GetCompositeSchedule) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"chargingSchedule\": ")
-	if tmp, err := json.Marshal(strct.ChargingSchedule); err != nil {
+	if tmp, err := json.Marshal(m.ChargingSchedule); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -613,43 +611,38 @@ func (strct *GetCompositeSchedule) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"connectorId\": ")
-	if tmp, err := json.Marshal(strct.ConnectorId); err != nil {
+	if tmp, err := json.Marshal(m.ConnectorId); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
 	}
-	comma = true
 	// Marshal the "scheduleStart" field
-	if comma {
+	if m.ScheduleStart != nil {
 		buf.WriteString(",")
+		buf.WriteString("\"scheduleStart\": ")
+		if tmp, err := json.Marshal(m.ScheduleStart.Format(time.RFC3339)); err != nil {
+			return nil, err
+		} else {
+			buf.Write(tmp)
+		}
 	}
-	buf.WriteString("\"scheduleStart\": ")
-	if tmp, err := json.Marshal(strct.ScheduleStart.Format(time.RFC3339)); err != nil {
-		return nil, err
-	} else {
-		buf.Write(tmp)
-	}
-	comma = true
 	// "Status" field is required
 	// only required object types supported for marshal checking (for now)
 	// Marshal the "status" field
-	if comma {
-		buf.WriteString(",")
-	}
+	buf.WriteString(",")
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
 	}
-	comma = true
 
 	buf.WriteString("}")
 	rv := buf.Bytes()
 	return rv, nil
 }
 
-func (strct *GetCompositeSchedule) UnmarshalJSON(b []byte) error {
+func (m *GetCompositeSchedule) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -659,19 +652,19 @@ func (strct *GetCompositeSchedule) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "chargingSchedule":
-			if err := json.Unmarshal([]byte(v), &strct.ChargingSchedule); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.ChargingSchedule); err != nil {
 				return err
 			}
 		case "connectorId":
-			if err := json.Unmarshal([]byte(v), &strct.ConnectorId); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.ConnectorId); err != nil {
 				return err
 			}
 		case "scheduleStart":
-			if err := json.Unmarshal([]byte(v), &strct.ScheduleStart); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.ScheduleStart); err != nil {
 				return err
 			}
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -686,7 +679,7 @@ func (strct *GetCompositeSchedule) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *GetConfiguration) MarshalJSON() ([]byte, error) {
+func (m *GetConfiguration) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -695,7 +688,7 @@ func (strct *GetConfiguration) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"configurationKey\": ")
-	if tmp, err := json.Marshal(strct.ConfigurationKey); err != nil {
+	if tmp, err := json.Marshal(m.ConfigurationKey); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -706,7 +699,7 @@ func (strct *GetConfiguration) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"unknownKey\": ")
-	if tmp, err := json.Marshal(strct.UnknownKey); err != nil {
+	if tmp, err := json.Marshal(m.UnknownKey); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -718,7 +711,7 @@ func (strct *GetConfiguration) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *GetConfiguration) UnmarshalJSON(b []byte) error {
+func (m *GetConfiguration) UnmarshalJSON(b []byte) error {
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
 		return err
@@ -727,11 +720,11 @@ func (strct *GetConfiguration) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "configurationKey":
-			if err := json.Unmarshal([]byte(v), &strct.ConfigurationKey); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.ConfigurationKey); err != nil {
 				return err
 			}
 		case "unknownKey":
-			if err := json.Unmarshal([]byte(v), &strct.UnknownKey); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.UnknownKey); err != nil {
 				return err
 			}
 		default:
@@ -741,7 +734,7 @@ func (strct *GetConfiguration) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *GetDiagnostics) MarshalJSON() ([]byte, error) {
+func (m *GetDiagnostics) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -750,7 +743,7 @@ func (strct *GetDiagnostics) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"fileName\": ")
-	if tmp, err := json.Marshal(strct.FileName); err != nil {
+	if tmp, err := json.Marshal(m.FileName); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -762,7 +755,7 @@ func (strct *GetDiagnostics) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *GetDiagnostics) UnmarshalJSON(b []byte) error {
+func (m *GetDiagnostics) UnmarshalJSON(b []byte) error {
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
 		return err
@@ -771,7 +764,7 @@ func (strct *GetDiagnostics) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "fileName":
-			if err := json.Unmarshal([]byte(v), &strct.FileName); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.FileName); err != nil {
 				return err
 			}
 		default:
@@ -781,7 +774,7 @@ func (strct *GetDiagnostics) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *GetLocalListVersion) MarshalJSON() ([]byte, error) {
+func (m *GetLocalListVersion) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -792,7 +785,7 @@ func (strct *GetLocalListVersion) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"listVersion\": ")
-	if tmp, err := json.Marshal(strct.ListVersion); err != nil {
+	if tmp, err := json.Marshal(m.ListVersion); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -804,7 +797,7 @@ func (strct *GetLocalListVersion) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *GetLocalListVersion) UnmarshalJSON(b []byte) error {
+func (m *GetLocalListVersion) UnmarshalJSON(b []byte) error {
 	listVersionReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -814,7 +807,7 @@ func (strct *GetLocalListVersion) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "listVersion":
-			if err := json.Unmarshal([]byte(v), &strct.ListVersion); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.ListVersion); err != nil {
 				return err
 			}
 			listVersionReceived = true
@@ -829,7 +822,7 @@ func (strct *GetLocalListVersion) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *RemoteStartTransaction) MarshalJSON() ([]byte, error) {
+func (m *RemoteStartTransaction) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -840,7 +833,7 @@ func (strct *RemoteStartTransaction) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -852,7 +845,7 @@ func (strct *RemoteStartTransaction) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *RemoteStartTransaction) UnmarshalJSON(b []byte) error {
+func (m *RemoteStartTransaction) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -862,7 +855,7 @@ func (strct *RemoteStartTransaction) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -877,7 +870,7 @@ func (strct *RemoteStartTransaction) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *RemoteStopTransaction) MarshalJSON() ([]byte, error) {
+func (m *RemoteStopTransaction) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -888,7 +881,7 @@ func (strct *RemoteStopTransaction) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -900,7 +893,7 @@ func (strct *RemoteStopTransaction) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *RemoteStopTransaction) UnmarshalJSON(b []byte) error {
+func (m *RemoteStopTransaction) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -910,7 +903,7 @@ func (strct *RemoteStopTransaction) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -925,7 +918,7 @@ func (strct *RemoteStopTransaction) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *ReserveNow) MarshalJSON() ([]byte, error) {
+func (m *ReserveNow) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -936,7 +929,7 @@ func (strct *ReserveNow) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -948,7 +941,7 @@ func (strct *ReserveNow) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *ReserveNow) UnmarshalJSON(b []byte) error {
+func (m *ReserveNow) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -958,7 +951,7 @@ func (strct *ReserveNow) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -973,7 +966,7 @@ func (strct *ReserveNow) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *Reset) MarshalJSON() ([]byte, error) {
+func (m *Reset) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -984,7 +977,7 @@ func (strct *Reset) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -996,7 +989,7 @@ func (strct *Reset) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *Reset) UnmarshalJSON(b []byte) error {
+func (m *Reset) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -1006,7 +999,7 @@ func (strct *Reset) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -1021,7 +1014,7 @@ func (strct *Reset) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *SendLocalList) MarshalJSON() ([]byte, error) {
+func (m *SendLocalList) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -1032,7 +1025,7 @@ func (strct *SendLocalList) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -1044,7 +1037,7 @@ func (strct *SendLocalList) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *SendLocalList) UnmarshalJSON(b []byte) error {
+func (m *SendLocalList) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -1054,7 +1047,7 @@ func (strct *SendLocalList) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -1069,7 +1062,7 @@ func (strct *SendLocalList) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *SetChargingProfile) MarshalJSON() ([]byte, error) {
+func (m *SetChargingProfile) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -1080,7 +1073,7 @@ func (strct *SetChargingProfile) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -1092,7 +1085,7 @@ func (strct *SetChargingProfile) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *SetChargingProfile) UnmarshalJSON(b []byte) error {
+func (m *SetChargingProfile) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -1102,7 +1095,7 @@ func (strct *SetChargingProfile) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -1117,7 +1110,7 @@ func (strct *SetChargingProfile) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *TriggerMessage) MarshalJSON() ([]byte, error) {
+func (m *TriggerMessage) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -1128,7 +1121,7 @@ func (strct *TriggerMessage) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -1140,7 +1133,7 @@ func (strct *TriggerMessage) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *TriggerMessage) UnmarshalJSON(b []byte) error {
+func (m *TriggerMessage) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -1150,7 +1143,7 @@ func (strct *TriggerMessage) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -1165,7 +1158,7 @@ func (strct *TriggerMessage) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *UnlockConnector) MarshalJSON() ([]byte, error) {
+func (m *UnlockConnector) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 	comma := false
@@ -1176,7 +1169,7 @@ func (strct *UnlockConnector) MarshalJSON() ([]byte, error) {
 		buf.WriteString(",")
 	}
 	buf.WriteString("\"status\": ")
-	if tmp, err := json.Marshal(strct.Status); err != nil {
+	if tmp, err := json.Marshal(m.Status); err != nil {
 		return nil, err
 	} else {
 		buf.Write(tmp)
@@ -1188,7 +1181,7 @@ func (strct *UnlockConnector) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *UnlockConnector) UnmarshalJSON(b []byte) error {
+func (m *UnlockConnector) UnmarshalJSON(b []byte) error {
 	statusReceived := false
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
@@ -1198,7 +1191,7 @@ func (strct *UnlockConnector) UnmarshalJSON(b []byte) error {
 	for k, v := range jsonMap {
 		switch k {
 		case "status":
-			if err := json.Unmarshal([]byte(v), &strct.Status); err != nil {
+			if err := json.Unmarshal([]byte(v), &m.Status); err != nil {
 				return err
 			}
 			statusReceived = true
@@ -1213,7 +1206,7 @@ func (strct *UnlockConnector) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (strct *UpdateFirmware) MarshalJSON() ([]byte, error) {
+func (m *UpdateFirmware) MarshalJSON() ([]byte, error) {
 	buf := bytes.NewBuffer(make([]byte, 0))
 	buf.WriteString("{")
 
@@ -1222,7 +1215,7 @@ func (strct *UpdateFirmware) MarshalJSON() ([]byte, error) {
 	return rv, nil
 }
 
-func (strct *UpdateFirmware) UnmarshalJSON(b []byte) error {
+func (m *UpdateFirmware) UnmarshalJSON(b []byte) error {
 	var jsonMap map[string]json.RawMessage
 	if err := json.Unmarshal(b, &jsonMap); err != nil {
 		return err

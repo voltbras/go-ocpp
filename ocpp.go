@@ -1,10 +1,10 @@
 package ocpp
 
 import (
-	"github.com/eduhenke/go-ocpp/soap"
+	"github.com/eduhenke/go-ocpp/messages"
 )
 
-type Envelope soap.Envelope
+type MessageHandler func(request messages.Request, cpID string) (messages.Response, error)
 type Version string
 
 const (

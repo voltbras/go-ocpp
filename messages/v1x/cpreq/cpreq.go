@@ -1,19 +1,21 @@
 package cpreq
 
 import (
-	"github.com/eduhenke/go-ocpp/messages/v16/cpres"
+	"github.com/eduhenke/go-ocpp/messages"
+	"github.com/eduhenke/go-ocpp/messages/v1x/cpres"
 )
 
 // ChargePointRequest is a request coming from the chargepoint to the central system
 type ChargePointRequest interface {
+	messages.Request
 	IsChargePointRequest()
-	Action() string
-	GetResponseObject() cpres.ChargePointResponse
+	GetChargePointResponse() cpres.ChargePointResponse
 }
 
 type chargepointRequest struct{}
 
 func (cpreq *chargepointRequest) IsChargePointRequest() {}
+func (cpreq *chargepointRequest) IsRequest() {}
 
 func GetRequestFromActionName(action string) ChargePointRequest {
 	switch action {

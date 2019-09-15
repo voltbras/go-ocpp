@@ -2,16 +2,18 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/eduhenke/go-ocpp/csystem"
-	"github.com/eduhenke/go-ocpp/messages/v16/cpreq"
-	"github.com/eduhenke/go-ocpp/messages/v16/cpres"
+	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
+	"github.com/eduhenke/go-ocpp/messages/v1x/cpres"
 )
 
 func main() {
 
-	csystem.ListenAndServe(":12811", func(req cpreq.ChargePointRequest) (cpres.ChargePointResponse, error) {
+	csystem.ListenAndServe(":12811", func(req cpreq.ChargePointRequest, cpID string) (cpres.ChargePointResponse, error) {
+		fmt.Printf("Request from %s\n", cpID)
 		switch req := req.(type) {
 		case *cpreq.BootNotification:
 			return &cpres.BootNotification{

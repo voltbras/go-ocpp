@@ -1,9 +1,11 @@
 package cp
 
 import (
-	"github.com/eduhenke/go-ocpp/messages/v16/cpreq"
-	"github.com/eduhenke/go-ocpp/messages/v16/cpres"
-	"github.com/eduhenke/go-ocpp/soap"
+	"errors"
+	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
+	"github.com/eduhenke/go-ocpp/messages/v1x/cpres"
+	"github.com/eduhenke/go-ocpp/service"
+	"github.com/eduhenke/go-ocpp/wsconn"
 )
 
 type Service interface {
@@ -11,39 +13,44 @@ type Service interface {
 }
 
 type SoapService struct {
-	client *soap.Client
+	*service.SoapService
 }
 
 func NewSoapService(csURL string) Service {
-	client := soap.NewClient(csURL)
 	return &SoapService{
-		client: client,
+		service.NewSoapService(csURL),
 	}
 }
 
 func (service *SoapService) Send(req cpreq.ChargePointRequest) (cpres.ChargePointResponse, error) {
-	resp := req.GetResponseObject()
-	err := service.client.Call(req.Action(), req, resp)
+	rawResp, err := service.SoapService.Send(req)
 	if err != nil {
 		return nil, err
 	}
-
+	resp, ok := rawResp.(cpres.ChargePointResponse)
+	if !ok {
+		return nil, errors.New("response is not a cpresponse")
+	}
 	return resp, nil
 }
 
-// type JSONService struct {
-// }
+type JsonService struct {
+	*service.JsonService
+}
 
-// func NewJSONService() Service {
-// 	return &JSONService{}
-// }
+func NewJsonService(conn *wsconn.Conn) Service {
+	return &JsonService{service.NewJsonService(conn)}
+}
 
-// func (service *JSONService) Send(req cpreq.ChargePointRequest) (cpres.ChargePointResponse, error) {
-// 	resp := req.GetResponseObject()
-// 	err := service.client.Call(req.Action(), req, resp)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func (service *JsonService) Send(req cpreq.ChargePointRequest) (cpres.ChargePointResponse, error) {
+	rawResp, err := service.JsonService.Send(req)
+	if err != nil {
+		return nil, err
+	}
+	resp, ok := rawResp.(cpres.ChargePointResponse)
+	if !ok {
+		return nil, errors.New("response is not a cpresponse")
+	}
+	return resp, nil
+}
 
-// 	return resp, nil
-// }
