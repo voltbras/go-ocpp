@@ -3,11 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/eduhenke/go-ocpp"
 	"log"
 	"os"
 	"time"
 
+	"github.com/eduhenke/go-ocpp"
 	"github.com/eduhenke/go-ocpp/csystem"
 	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
 	"github.com/eduhenke/go-ocpp/messages/v1x/cpres"
