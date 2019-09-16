@@ -1,6 +1,7 @@
 package cpreq
 
 import (
+	"errors"
 	"github.com/eduhenke/go-ocpp/messages"
 )
 
@@ -15,28 +16,6 @@ type chargepointRequest struct{}
 func (cpreq *chargepointRequest) IsChargePointRequest() {}
 func (cpreq *chargepointRequest) IsRequest()            {}
 
-func GetRequestFromActionName(action string) ChargePointRequest {
-	switch action {
-	case "Authorize":
-		return &Authorize{}
-	case "BootNotification":
-		return &BootNotification{}
-	case "DataTransfer":
-		return &DataTransfer{}
-	case "DiagnosticsStatusNotification":
-		return &DiagnosticsStatusNotification{}
-	case "FirmwareStatusNotification":
-		return &FirmwareStatusNotification{}
-	case "Heartbeat":
-		return &Heartbeat{}
-	case "MeterValues":
-		return &MeterValues{}
-	case "StartTransaction":
-		return &StartTransaction{}
-	case "StatusNotification":
-		return &StatusNotification{}
-	case "StopTransaction":
-		return &StopTransaction{}
-	}
-	return nil
-}
+var (
+	ErrorNotChargePointRequest = errors.New("not a chargepoint request")
+)

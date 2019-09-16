@@ -1,6 +1,7 @@
 package csreq
 
 import (
+	"errors"
 	"github.com/eduhenke/go-ocpp/messages"
 )
 
@@ -14,3 +15,7 @@ type centralSystemRequest struct{}
 
 func (csreq *centralSystemRequest) IsCentralSystemRequest() {}
 func (csreq *centralSystemRequest) IsRequest()              {}
+
+var (
+	ErrorNotCentralSystemRequest = errors.New("not a central system request")
+)

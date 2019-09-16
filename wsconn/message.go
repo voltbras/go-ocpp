@@ -2,6 +2,7 @@ package wsconn
 
 import (
 	"encoding/json"
+	"github.com/eduhenke/go-ocpp/messages"
 )
 
 type Action string
@@ -20,47 +21,53 @@ type Message interface {
 }
 
 type CallMessage struct {
-	id      MessageID
+	id MessageID
 	Action
 	Payload map[string]interface{}
 }
 
-func (msg *CallMessage) MessageType() MessageType {
+func NewCallMessage(id MessageID, action Action, payload map[string]interface{}) *CallMessage {
+	return &CallMessage{
+		id:               id,
+		Action: action,
+		Payload: payload,
+	}
+}
+
+func (call *CallMessage) MessageType() MessageType {
 	return Call
 }
 
-func (msg *CallMessage) MessageID() MessageID {
-	return msg.id
+func (call *CallMessage) MessageID() MessageID {
+	return call.id
 }
 
-func (msg *CallMessage) MarshalJSON() ([]byte, error) {
-	return json.Marshal([]interface{}{msg.MessageType(), msg.id, msg.Action, msg.Payload})
+func (call *CallMessage) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]interface{}{call.MessageType(), call.id, call.Action, call.Payload})
 }
-
 
 type CallResultMessage struct {
 	id      MessageID
-	payload interface{} //map[string]interface{}
+	Payload interface{} //map[string]interface{}
 }
 
 func NewCallResult(id MessageID, payload interface{}) *CallResultMessage {
 	return &CallResultMessage{
 		id:      id,
-		payload: payload,
+		Payload: payload,
 	}
 }
 
-func (msg *CallResultMessage) MessageType() MessageType {
+func (result *CallResultMessage) MessageType() MessageType {
 	return CallResult
 }
 
-func (msg *CallResultMessage) MessageID() MessageID {
-	return msg.id
+func (result *CallResultMessage) MessageID() MessageID {
+	return result.id
 }
-func (msg *CallResultMessage) MarshalJSON() ([]byte, error) {
-	return json.Marshal([]interface{}{msg.MessageType(), msg.id, msg.payload})
+func (result *CallResultMessage) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]interface{}{result.MessageType(), result.id, result.Payload})
 }
-
 
 type ErrorCode string
 
@@ -103,13 +110,33 @@ func NewCallErrorMessage(id MessageID, errorCode ErrorCode, errorDescription str
 	}
 }
 
-func (msg *CallErrorMessage) MessageType() MessageType {
+func (err *CallErrorMessage) MessageType() MessageType {
 	return CallError
 }
 
-func (msg *CallErrorMessage) MessageID() MessageID {
-	return msg.id
+func (err *CallErrorMessage) MessageID() MessageID {
+	return err.id
 }
-func (msg *CallErrorMessage) MarshalJSON() ([]byte, error) {
-	return json.Marshal([]interface{}{msg.MessageType(), msg.id, msg.errorCode, msg.errorDescription, msg.errorDetails})
+func (err *CallErrorMessage) MarshalJSON() ([]byte, error) {
+	return json.Marshal([]interface{}{err.MessageType(), err.id, err.errorCode, err.errorDescription, err.errorDetails})
+}
+
+func unmarshalResponse(id MessageID, resp messages.Response, err error) Message {
+	if err != nil {
+		return NewCallErrorMessage(id, InternalError, err.Error())
+	}
+	return NewCallResult(id, resp)
+}
+
+func UnmarshalRequest(id MessageID, req messages.Request) (*CallMessage, error) {
+	var inInterface map[string]interface{}
+	inrec, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(inrec, &inInterface)
+	if err != nil {
+		return nil, err
+	}
+	return NewCallMessage(id, Action(req.Action()), inInterface), nil
 }

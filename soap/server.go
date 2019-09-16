@@ -32,7 +32,7 @@ func Handle(w http.ResponseWriter, r *http.Request, handle ocpp.MessageHandler) 
 
 	resp, err := handle(req, reqEnv.Header.ChargeBoxIdentity)
 	if err != nil {
-		return fmt.Errorf("couldn't handle request: %w", err)
+		log.Error("couldn't handle request: %w", err)
 	}
 	rawResp, err := Marshal(resp, err, "http://www.w3.org/2003/05/soap-envelope")
 	if err != nil {

@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/xml"
 	"errors"
-	"github.com/eduhenke/go-ocpp/internal/log"
-	"github.com/eduhenke/go-ocpp/messages"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"reflect"
 	"time"
+
+	"github.com/eduhenke/go-ocpp/internal/log"
+	"github.com/eduhenke/go-ocpp/messages"
 
 	"github.com/google/uuid"
 )
@@ -28,7 +29,7 @@ func NewClient(url string) *Client {
 
 type CallOptionsFrom toSendFrom
 type CallOptions struct {
-	From CallOptionsFrom
+	From              CallOptionsFrom
 	ChargeBoxIdentity string
 }
 
@@ -41,7 +42,7 @@ func (s *Client) Call(soapAction string, request messages.Request, response mess
 	envelope := toSendEnvelope{XMLNS: "http://www.w3.org/2003/05/soap-envelope"}
 	envelope.Header = &toSendHeader{
 		XMLNS:     "http://www.w3.org/2005/08/addressing",
-		Action:    soapAction,
+		Action:    "/" + soapAction,
 		To:        s.url,
 		MessageID: "uuid:" + uuid.New().String(),
 	}

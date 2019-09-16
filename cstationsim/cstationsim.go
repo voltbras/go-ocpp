@@ -7,6 +7,9 @@ import (
 	"github.com/eduhenke/go-ocpp/messages/v1x/cpres"
 	"github.com/eduhenke/go-ocpp/service/cs"
 	"github.com/eduhenke/go-ocpp/soap"
+	"github.com/eduhenke/go-ocpp/wsconn"
+	"github.com/gorilla/websocket"
+	"net/http"
 	"time"
 )
 
@@ -14,13 +17,21 @@ type Station struct {
 	CsService cs.Service
 }
 
-func NewStation(port, csURL string, transport ocpp.Transport) *Station {
+func NewStation(identity, csURL string, transport ocpp.Transport) *Station {
 	var service cs.Service
 	if transport == ocpp.JSON {
-		//service = cs.NewJsonService()
+		dialer := websocket.Dialer{
+			Subprotocols: []string{string(ocpp.V16)},
+		}
+		socket, _, err := dialer.Dial(csURL+"/"+identity, http.Header{})
+		if err != nil {
+			panic(err)
+		}
+		conn := wsconn.NewConn(socket)
+		service = cs.NewJsonService(conn)
 	}
 	if transport == ocpp.SOAP {
-		service = cs.NewSoapService(csURL, &soap.CallOptions{ChargeBoxIdentity: "STATION_01"})
+		service = cs.NewSoapService(csURL, &soap.CallOptions{ChargeBoxIdentity: identity})
 	}
 	return &Station{
 		CsService: service,

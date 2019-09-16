@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/eduhenke/go-ocpp"
-	"github.com/eduhenke/go-ocpp/cstationsim"
 	"log"
 	"os"
 	"time"
@@ -44,7 +43,5 @@ func main() {
 		}
 
 	})
-
-	st := cstationsim.NewStation(":12812", "http://localhost:12811", ocpp.SOAP)
-	st.Run()
+	select {}
 }

@@ -16,6 +16,5 @@ func NewJsonService(conn *wsconn.Conn) *JsonService {
 }
 
 func (service *JsonService) Send(req messages.Request) (messages.Response, error) {
-	//service.conn.
-	return nil, nil
+	return service.conn.SendRequest(req)
 }

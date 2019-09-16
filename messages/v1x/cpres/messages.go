@@ -18,11 +18,11 @@ type BootNotification struct {
 	chargepointResponse
 	XMLName xml.Name `json:"-" xml:"urn://Ocpp/Cs/2012/06/ bootNotificationResponse"`
 
+	Status   string  `json:"status" xml:"status,omitempty"`
 	CurrentTime time.Time `json:"currentTime" xml:"currentTime,omitempty"`
 
 	// Interval in 1.5 is heartbeatInterval
 	Interval float64 `json:"interval" xml:"heartbeatInterval,omitempty"`
-	Status   string  `json:"status" xml:"status,omitempty"`
 }
 
 // DataTransfer
