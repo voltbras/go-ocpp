@@ -1,9 +1,8 @@
 package soap
 
 import (
+	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
 	"testing"
-
-	"github.com/eduhenke/go-ocpp/messages"
 )
 
 const bootNotification = `
@@ -35,7 +34,7 @@ func TestSOAPUnmarshal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, ok := env.Body.Content.(*messages.BootNotificationRequest)
+	_, ok := env.Body.Content.(*cpreq.BootNotification)
 	if !ok {
 		t.Fatal("Could not assert message type")
 	}
@@ -54,7 +53,7 @@ const meterValues = `
   </S:Header>
   <S:Body>
     <ocpp:meterValuesRequest xmlns:ocpp="urn://Ocpp/Cs/2012/06/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-      <ocpp:connectorId>0</ocpp:connectorId>
+      <ocpp:connectorId>1337</ocpp:connectorId>
       <ocpp:values>
         <ocpp:timestamp>2019-04-05T21:45:00.000Z</ocpp:timestamp>
         <ocpp:value context="Sample.Clock" format="Raw" location="Outlet" measurand="Energy.Active.Import.Register" unit="Wh">0</ocpp:value>
@@ -69,14 +68,14 @@ func TestMeterValues(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req, ok := env.Body.Content.(*messages.MeterValuesRequest)
+	req, ok := env.Body.Content.(*cpreq.MeterValues)
 	if !ok {
 		t.Fatal("Could not assert message type")
 	}
-	if req.ConnectorId != 0 {
+	if req.ConnectorId != 1337 {
 		t.Fatal("wrong connector")
 	}
-	value := req.Values[0].SampledValues[0]
+	value := req.MeterValue[0].SampledValues[0]
 	if value.Value != "0" || value.Location != "Outlet" ||
 		value.Measurand != "Energy.Active.Import.Register" ||
 		value.Unit != "Wh" || value.Format != "Raw" ||

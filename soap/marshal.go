@@ -4,7 +4,10 @@ import (
 	"encoding/xml"
 	"errors"
 
-	"github.com/eduhenke/go-ocpp/messages"
+	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
+	"github.com/eduhenke/go-ocpp/messages/v1x/cpres"
+	"github.com/eduhenke/go-ocpp/messages/v1x/csreq"
+	"github.com/eduhenke/go-ocpp/messages/v1x/csres"
 )
 
 func Unmarshal(data []byte) (receivedEnvelope, error) {
@@ -46,107 +49,107 @@ func (b *receivedBody) UnmarshalXML(d *xml.Decoder, start xml.StartElement) erro
 				b.Fault = &fault
 			// requests coming from the charger
 			case "bootNotificationRequest":
-				msg = new(messages.BootNotificationRequest)
+				msg = new(cpreq.BootNotification)
 			case "heartbeatRequest":
-				msg = new(messages.HeartbeatRequest)
+				msg = new(cpreq.Heartbeat)
 			case "statusNotificationRequest":
-				msg = new(messages.StatusNotificationRequest)
+				msg = new(cpreq.StatusNotification)
 			case "meterValuesRequest":
-				msg = new(messages.MeterValuesRequest)
+				msg = new(cpreq.MeterValues)
 			case "authorizeRequest":
-				msg = new(messages.AuthorizeRequest)
+				msg = new(cpreq.Authorize)
 			case "startTransactionRequest":
-				msg = new(messages.StartTransactionRequest)
+				msg = new(cpreq.StartTransaction)
 			case "stopTransactionRequest":
-				msg = new(messages.StopTransactionRequest)
+				msg = new(cpreq.StopTransaction)
 			case "firmwareStatusNotificationRequest":
-				msg = new(messages.FirmwareStatusNotificationRequest)
+				msg = new(cpreq.FirmwareStatusNotification)
 			case "diagnosticsStatusNotificationRequest":
-				msg = new(messages.DiagnosticsStatusNotificationRequest)
+				msg = new(cpreq.DiagnosticsStatusNotification)
 
 			// responses coming from the central system
 			case "bootNotificationResponse":
-				msg = new(messages.BootNotificationResponse)
+				msg = new(cpres.BootNotification)
 			case "heartbeatResponse":
-				msg = new(messages.HeartbeatResponse)
+				msg = new(cpres.Heartbeat)
 			case "statusNotificationResponse":
-				msg = new(messages.StatusNotificationResponse)
+				msg = new(cpres.StatusNotification)
 			case "meterValuesResponse":
-				msg = new(messages.MeterValuesResponse)
+				msg = new(cpres.MeterValues)
 			case "authorizeResponse":
-				msg = new(messages.AuthorizeResponse)
+				msg = new(cpres.Authorize)
 			case "startTransactionResponse":
-				msg = new(messages.StartTransactionResponse)
+				msg = new(cpres.StartTransaction)
 			case "stopTransactionResponse":
-				msg = new(messages.StopTransactionResponse)
+				msg = new(cpres.StopTransaction)
 			case "firmwareStatusNotificationResponse":
-				msg = new(messages.FirmwareStatusNotificationResponse)
+				msg = new(cpres.FirmwareStatusNotification)
 			case "diagnosticsStatusNotificationResponse":
-				msg = new(messages.DiagnosticsStatusNotificationResponse)
+				msg = new(cpres.DiagnosticsStatusNotification)
 
 			// requests coming from the central system
 			case "unlockConnectorRequest":
-				msg = new(messages.UnlockConnectorRequest)
+				msg = new(csreq.UnlockConnector)
 			case "eesetRequest":
-				msg = new(messages.ResetRequest)
+				msg = new(csreq.Reset)
 			case "changeAvailabilityRequest":
-				msg = new(messages.ChangeAvailabilityRequest)
+				msg = new(csreq.ChangeAvailability)
 			case "getDiagnosticsRequest":
-				msg = new(messages.GetDiagnosticsRequest)
+				msg = new(csreq.GetDiagnostics)
 			case "clearCacheRequest":
-				msg = new(messages.ClearCacheRequest)
+				msg = new(csreq.ClearCache)
 			case "updateFirmwareRequest":
-				msg = new(messages.UpdateFirmwareRequest)
+				msg = new(csreq.UpdateFirmware)
 			case "changeConfigurationRequest":
-				msg = new(messages.ChangeConfigurationRequest)
+				msg = new(csreq.ChangeConfiguration)
 			case "remoteStartTransactionRequest":
-				msg = new(messages.RemoteStartTransactionRequest)
+				msg = new(csreq.RemoteStartTransaction)
 			case "remoteStopTransactionRequest":
-				msg = new(messages.RemoteStopTransactionRequest)
+				msg = new(csreq.RemoteStopTransaction)
 			case "cancelReservationRequest":
-				msg = new(messages.CancelReservationRequest)
+				msg = new(csreq.CancelReservation)
 			case "dataTransferRequest":
-				msg = new(messages.DataTransferRequest)
+				msg = new(csreq.DataTransfer)
 			case "getConfigurationRequest":
-				msg = new(messages.GetConfigurationRequest)
+				msg = new(csreq.GetConfiguration)
 			case "getLocalListVersionRequest":
-				msg = new(messages.GetLocalListVersionRequest)
+				msg = new(csreq.GetLocalListVersion)
 			case "reserveNowRequest":
-				msg = new(messages.ReserveNowRequest)
+				msg = new(csreq.ReserveNow)
 			case "sendLocalListRequest":
-				msg = new(messages.SendLocalListRequest)
+				msg = new(csreq.SendLocalList)
 
 			// responses coming from the charger
 			case "unlockConnectorResponse":
-				msg = new(messages.UnlockConnectorResponse)
+				msg = new(csres.UnlockConnector)
 			case "eesetResponse":
-				msg = new(messages.ResetResponse)
+				msg = new(csres.Reset)
 			case "changeAvailabilityResponse":
-				msg = new(messages.ChangeAvailabilityResponse)
+				msg = new(csres.ChangeAvailability)
 			case "getDiagnosticsResponse":
-				msg = new(messages.GetDiagnosticsResponse)
+				msg = new(csres.GetDiagnostics)
 			case "clearCacheResponse":
-				msg = new(messages.ClearCacheResponse)
+				msg = new(csres.ClearCache)
 			case "updateFirmwareResponse":
-				msg = new(messages.UpdateFirmwareResponse)
+				msg = new(csres.UpdateFirmware)
 			case "changeConfigurationResponse":
-				msg = new(messages.ChangeConfigurationResponse)
+				msg = new(csres.ChangeConfiguration)
 			case "remoteStartTransactionResponse":
-				msg = new(messages.RemoteStartTransactionResponse)
+				msg = new(csres.RemoteStartTransaction)
 			case "remoteStopTransactionResponse":
-				msg = new(messages.RemoteStopTransactionResponse)
+				msg = new(csres.RemoteStopTransaction)
 			case "cancelReservationResponse":
-				msg = new(messages.CancelReservationResponse)
+				msg = new(csres.CancelReservation)
 			case "dataTransferResponse":
-				msg = new(messages.DataTransferResponse)
+				msg = new(csres.DataTransfer)
 			case "getConfigurationResponse":
-				msg = new(messages.GetConfigurationResponse)
+				msg = new(csres.GetConfiguration)
 			case "getLocalListVersionResponse":
-				msg = new(messages.GetLocalListVersionResponse)
+				msg = new(csres.GetLocalListVersion)
 			case "reserveNowResponse":
-				msg = new(messages.ReserveNowResponse)
+				msg = new(csres.ReserveNow)
 			case "sendLocalListResponse":
-				msg = new(messages.SendLocalListResponse)
+				msg = new(csres.SendLocalList)
 			default:
 				return errors.New("not implemented unmarshal for this OCPP message:" + tt.Name.Local)
 			}
