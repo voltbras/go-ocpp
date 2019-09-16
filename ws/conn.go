@@ -1,4 +1,4 @@
-package wsconn
+package ws
 
 import (
 	"bytes"
@@ -13,36 +13,48 @@ import (
 	"sync"
 
 	"github.com/eduhenke/go-ocpp"
-	ws "github.com/gorilla/websocket"
+	"github.com/gorilla/websocket"
 )
 
 type Conn struct {
-	*ws.Conn
+	*websocket.Conn
 	sendMux sync.Mutex
-	sentMessages map[MessageID]Message
+	sentMessages map[MessageID]*CallMessage
 	requests chan struct{messages.Request; MessageID}
 	responsesOf map[MessageID]chan messages.Response
 }
 
-var upgrader = ws.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
-func NewConn(socket *ws.Conn) *Conn {
+func newConn(socket *websocket.Conn) *Conn {
 	return &Conn{
 		Conn: socket,
-		sentMessages: make(map[MessageID]Message, 0),
+		sentMessages: make(map[MessageID]*CallMessage, 0),
 		requests: make(chan struct{messages.Request; MessageID}, 0),
 		responsesOf: make(map[MessageID]chan messages.Response),
 	}
 }
-func New(w http.ResponseWriter, r *http.Request, supportedVersions []ocpp.Version) (*Conn, error) {
+
+func Dial(identity, csURL string, version ocpp.Version) (*Conn, error) {
+	dialer := websocket.Dialer{
+		Subprotocols: []string{string(version)},
+	}
+	socket, _, err := dialer.Dial(csURL+"/"+identity, http.Header{})
+	if err != nil {
+		return nil, err
+	}
+	return newConn(socket), err
+}
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+func Handshake(w http.ResponseWriter, r *http.Request, supportedVersions []ocpp.Version) (*Conn, error) {
 	upgraderHeader := http.Header{}
 	for _, v := range supportedVersions {
 		upgraderHeader.Add("Sec-WebSocket-Protocol", "ocpp"+string(v))
 	}
 	socket, err := upgrader.Upgrade(w, r, upgraderHeader)
-	conn := NewConn(socket)
+	conn := newConn(socket)
 	return conn, err
 }
 
@@ -121,8 +133,8 @@ func (c *Conn) ReadMessage() error {
 
 	log.Debug("Received a message: %v\n", msg)
 
-	if msg.MessageType() == CallResult || msg.MessageType() == CallError {
-		_, ok := c.sentMessages[msg.MessageID()]
+	if msg.Type() == CallResult || msg.Type() == CallError {
+		_, ok := c.sentMessages[msg.ID()]
 		if !ok {
 			return errors.New("received call error/result without sending any call message")
 		}
@@ -136,20 +148,20 @@ func (c *Conn) ReadMessage() error {
 		if wserr != Nil {
 			break
 		}
-		c.requests <- struct{messages.Request; MessageID}{req, msg.MessageID()}
+		c.requests <- struct{messages.Request; MessageID}{req, msg.ID()}
 	case *CallResultMessage:
 		var resp messages.Response
 		resp, wserr = c.callResultToResponse(m)
 		if wserr != Nil {
 			break
 		}
-		c.responsesOf[m.MessageID()] <- resp
+		c.responsesOf[m.ID()] <- resp
 	case *CallErrorMessage:
 		wserr = FormationViolation
 	}
 	if wserr != Nil {
-		msg := NewCallErrorMessage(msg.MessageID(), wserr, "on handling message")
-		c.sendMessage(msg)
+		msg := NewCallErrorMessage(msg.ID(), wserr, "on handling message")
+		return c.sendMessage(msg)
 	}
 	return nil
 }
@@ -171,17 +183,13 @@ func (c *Conn) callToRequest(call *CallMessage) (messages.Request, ErrorCode) {
 }
 
 func (c *Conn) callResultToResponse(result *CallResultMessage) (messages.Response, ErrorCode) {
-	id := result.MessageID()
-	reqMsg, ok := c.sentMessages[id]
+	id := result.ID()
+	call, ok := c.sentMessages[id]
 	if !ok {
 		return nil, GenericError
 	}
-	if reqMsg == nil {
+	if call == nil {
 		return nil, NotSupported
-	}
-	call, ok := reqMsg.(*CallMessage)
-	if !ok {
-		return nil, GenericError
 	}
 	resp := req.FromActionName(string(call.Action)).GetResponse()
 	originalPayload, err := json.Marshal(result.Payload)
@@ -203,7 +211,7 @@ func (c *Conn) sendMessage(msg Message) error {
 		return fmt.Errorf("on marshalling message: %w", err)
 	}
 	log.Debug("Sending message [raw]: %v\n", string(bts))
-	err = c.Conn.WriteMessage(ws.TextMessage, bts)
+	err = c.Conn.WriteMessage(websocket.TextMessage, bts)
 	if err != nil {
 		return fmt.Errorf("on sending message: %w", err)
 	}
@@ -213,10 +221,6 @@ func (c *Conn) sendMessage(msg Message) error {
 
 func (c *Conn) Requests() <-chan struct{messages.Request; MessageID} {
 	return c.requests
-}
-
-func (c *Conn) ResponseOf(ID MessageID) <-chan messages.Response {
-	return c.responsesOf[ID]
 }
 
 func (c *Conn) SendRequest(request messages.Request) (messages.Response, error) {

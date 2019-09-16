@@ -1,4 +1,4 @@
-package wsconn
+package ws
 
 import (
 	"encoding/json"
@@ -16,8 +16,8 @@ const (
 )
 
 type Message interface {
-	MessageType() MessageType
-	MessageID() MessageID
+	Type() MessageType
+	ID() MessageID
 }
 
 type CallMessage struct {
@@ -34,16 +34,16 @@ func NewCallMessage(id MessageID, action Action, payload map[string]interface{})
 	}
 }
 
-func (call *CallMessage) MessageType() MessageType {
+func (call *CallMessage) Type() MessageType {
 	return Call
 }
 
-func (call *CallMessage) MessageID() MessageID {
+func (call *CallMessage) ID() MessageID {
 	return call.id
 }
 
 func (call *CallMessage) MarshalJSON() ([]byte, error) {
-	return json.Marshal([]interface{}{call.MessageType(), call.id, call.Action, call.Payload})
+	return json.Marshal([]interface{}{call.Type(), call.id, call.Action, call.Payload})
 }
 
 type CallResultMessage struct {
@@ -58,15 +58,15 @@ func NewCallResult(id MessageID, payload interface{}) *CallResultMessage {
 	}
 }
 
-func (result *CallResultMessage) MessageType() MessageType {
+func (result *CallResultMessage) Type() MessageType {
 	return CallResult
 }
 
-func (result *CallResultMessage) MessageID() MessageID {
+func (result *CallResultMessage) ID() MessageID {
 	return result.id
 }
 func (result *CallResultMessage) MarshalJSON() ([]byte, error) {
-	return json.Marshal([]interface{}{result.MessageType(), result.id, result.Payload})
+	return json.Marshal([]interface{}{result.Type(), result.id, result.Payload})
 }
 
 type ErrorCode string
@@ -110,15 +110,15 @@ func NewCallErrorMessage(id MessageID, errorCode ErrorCode, errorDescription str
 	}
 }
 
-func (err *CallErrorMessage) MessageType() MessageType {
+func (err *CallErrorMessage) Type() MessageType {
 	return CallError
 }
 
-func (err *CallErrorMessage) MessageID() MessageID {
+func (err *CallErrorMessage) ID() MessageID {
 	return err.id
 }
 func (err *CallErrorMessage) MarshalJSON() ([]byte, error) {
-	return json.Marshal([]interface{}{err.MessageType(), err.id, err.errorCode, err.errorDescription, err.errorDetails})
+	return json.Marshal([]interface{}{err.Type(), err.id, err.errorCode, err.errorDescription, err.errorDetails})
 }
 
 func unmarshalResponse(id MessageID, resp messages.Response, err error) Message {

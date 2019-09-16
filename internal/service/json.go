@@ -2,14 +2,14 @@ package service
 
 import (
 	"github.com/eduhenke/go-ocpp/messages"
-	"github.com/eduhenke/go-ocpp/wsconn"
+	"github.com/eduhenke/go-ocpp/ws"
 )
 
 type JsonService struct {
-	conn *wsconn.Conn
+	conn *ws.Conn
 }
 
-func NewJsonService(conn *wsconn.Conn) *JsonService {
+func NewJsonService(conn *ws.Conn) *JsonService {
 	return &JsonService{
 		conn: conn,
 	}

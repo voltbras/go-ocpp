@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/eduhenke/go-ocpp"
-	"github.com/eduhenke/go-ocpp/csystem"
+	"github.com/eduhenke/go-ocpp/cs"
 	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
 	"github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
 )
@@ -16,7 +16,7 @@ import (
 func main() {
 	ocpp.SetDebugLogger(log.New(os.Stdout, "DEBUG:", log.Ltime))
 	ocpp.SetErrorLogger(log.New(os.Stderr, "ERROR:", log.Ltime))
-	csys := csystem.New()
+	csys := cs.NewCentralSystem()
 	go csys.Run(":12811", func(req cpreq.ChargePointRequest, cpID string) (cpresp.ChargePointResponse, error) {
 		fmt.Printf("EXAMPLE(MAIN): Request from %s\n", cpID)
 		switch req := req.(type) {

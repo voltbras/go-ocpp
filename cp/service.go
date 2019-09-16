@@ -1,12 +1,11 @@
 package cp
 
 import (
-	"errors"
+	"github.com/eduhenke/go-ocpp/internal/service"
 	"github.com/eduhenke/go-ocpp/messages/v1x/csreq"
 	"github.com/eduhenke/go-ocpp/messages/v1x/csresp"
-	"github.com/eduhenke/go-ocpp/service"
 	"github.com/eduhenke/go-ocpp/soap"
-	"github.com/eduhenke/go-ocpp/wsconn"
+	"github.com/eduhenke/go-ocpp/ws"
 )
 
 type Service interface {
@@ -30,7 +29,7 @@ func (service *SoapService) Send(req csreq.CentralSystemRequest) (csresp.Central
 	}
 	resp, ok := rawResp.(csresp.CentralSystemResponse)
 	if !ok {
-		return nil, errors.New("response is not a csrespponse")
+		return nil, csresp.ErrorNotCentralSystemResponse
 	}
 	return resp, nil
 }
@@ -39,7 +38,7 @@ type JsonService struct {
 	*service.JsonService
 }
 
-func NewJsonService(conn *wsconn.Conn) Service {
+func NewJsonService(conn *ws.Conn) Service {
 	return &JsonService{service.NewJsonService(conn)}
 }
 
@@ -50,7 +49,7 @@ func (service *JsonService) Send(req csreq.CentralSystemRequest) (csresp.Central
 	}
 	resp, ok := rawResp.(csresp.CentralSystemResponse)
 	if !ok {
-		return nil, errors.New("response is not a csrespponse")
+		return nil, csresp.ErrorNotCentralSystemResponse
 	}
 	return resp, nil
 }
