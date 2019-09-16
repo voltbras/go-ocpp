@@ -2,73 +2,73 @@ package res
 
 import (
 	"github.com/eduhenke/go-ocpp/messages"
-	"github.com/eduhenke/go-ocpp/messages/v1x/cpres"
-	"github.com/eduhenke/go-ocpp/messages/v1x/csres"
+	"github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
+	"github.com/eduhenke/go-ocpp/messages/v1x/csresp"
 )
 
 func FromActionName(action string) messages.Response {
 	switch action {
 	case "CancelReservation":
-		return &csres.CancelReservation{}
+		return &csresp.CancelReservation{}
 	case "ChangeAvailability":
-		return &csres.ChangeAvailability{}
+		return &csresp.ChangeAvailability{}
 	case "ChangeConfiguration":
-		return &csres.ChangeConfiguration{}
+		return &csresp.ChangeConfiguration{}
 	case "ClearCache":
-		return &csres.ClearCache{}
+		return &csresp.ClearCache{}
 	case "ClearChargingProfile":
-		return &csres.ClearChargingProfile{}
+		return &csresp.ClearChargingProfile{}
 	// TODO: DataTransfer comes from both the CS and CP
 	// case "DataTransfer":
-	// 	return &csres.DataTransfer{}
+	// 	return &csresp.DataTransfer{}
 	case "GetCompositeSchedule":
-		return &csres.GetCompositeSchedule{}
+		return &csresp.GetCompositeSchedule{}
 	case "GetConfiguration":
-		return &csres.GetConfiguration{}
+		return &csresp.GetConfiguration{}
 	case "GetDiagnostics":
-		return &csres.GetDiagnostics{}
+		return &csresp.GetDiagnostics{}
 	case "GetLocalListVersion":
-		return &csres.GetLocalListVersion{}
+		return &csresp.GetLocalListVersion{}
 	case "RemoteStartTransaction":
-		return &csres.RemoteStartTransaction{}
+		return &csresp.RemoteStartTransaction{}
 	case "RemoteStopTransaction":
-		return &csres.RemoteStopTransaction{}
+		return &csresp.RemoteStopTransaction{}
 	case "ReserveNow":
-		return &csres.ReserveNow{}
+		return &csresp.ReserveNow{}
 	case "Reset":
-		return &csres.Reset{}
+		return &csresp.Reset{}
 	case "SendLocalList":
-		return &csres.SendLocalList{}
+		return &csresp.SendLocalList{}
 	case "TriggerMessage":
-		return &csres.TriggerMessage{}
+		return &csresp.TriggerMessage{}
 	case "UnlockConnector":
-		return &csres.UnlockConnector{}
+		return &csresp.UnlockConnector{}
 	case "UpdateFirmware":
-		return &csres.UpdateFirmware{}
+		return &csresp.UpdateFirmware{}
 	case "SetChargingProfile":
-		return &csres.SetChargingProfile{}
+		return &csresp.SetChargingProfile{}
 
 	case "Authorize":
-		return &cpres.Authorize{}
+		return &cpresp.Authorize{}
 	case "BootNotification":
-		return &cpres.BootNotification{}
+		return &cpresp.BootNotification{}
 	// TODO: DataTransfer comes from both the CS and CP
 	// case "DataTransfer":
-	// 	return &cpres.DataTransfer{}
+	// 	return &cpresp.DataTransfer{}
 	case "DiagnosticsStatusNotification":
-		return &cpres.DiagnosticsStatusNotification{}
+		return &cpresp.DiagnosticsStatusNotification{}
 	case "FirmwareStatusNotification":
-		return &cpres.FirmwareStatusNotification{}
+		return &cpresp.FirmwareStatusNotification{}
 	case "Heartbeat":
-		return &cpres.Heartbeat{}
+		return &cpresp.Heartbeat{}
 	case "MeterValues":
-		return &cpres.MeterValues{}
+		return &cpresp.MeterValues{}
 	case "StartTransaction":
-		return &cpres.StartTransaction{}
+		return &cpresp.StartTransaction{}
 	case "StatusNotification":
-		return &cpres.StatusNotification{}
+		return &cpresp.StatusNotification{}
 	case "StopTransaction":
-		return &cpres.StopTransaction{}
+		return &cpresp.StopTransaction{}
 	}
 	return nil
 }

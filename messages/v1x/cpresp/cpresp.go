@@ -1,4 +1,4 @@
-package cpres
+package cpresp
 
 import (
 	"errors"

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/eduhenke/go-ocpp/messages"
-	"github.com/eduhenke/go-ocpp/messages/v1x/csres"
+	"github.com/eduhenke/go-ocpp/messages/v1x/csresp"
 )
 
 // CancelReservation
@@ -258,59 +258,59 @@ func (m *UpdateFirmware) Action() string         { return "UpdateFirmware" }
 func (m *SetChargingProfile) Action() string     { return "SetChargingProfile" }
 
 func (m *CancelReservation) GetResponse() messages.Response {
-	return &csres.CancelReservation{}
+	return &csresp.CancelReservation{}
 }
 func (m *ChangeAvailability) GetResponse() messages.Response {
-	return &csres.ChangeAvailability{}
+	return &csresp.ChangeAvailability{}
 }
 func (m *ChangeConfiguration) GetResponse() messages.Response {
-	return &csres.ChangeConfiguration{}
+	return &csresp.ChangeConfiguration{}
 }
 func (m *ClearCache) GetResponse() messages.Response {
-	return &csres.ClearCache{}
+	return &csresp.ClearCache{}
 }
 func (m *ClearChargingProfile) GetResponse() messages.Response {
-	return &csres.ClearChargingProfile{}
+	return &csresp.ClearChargingProfile{}
 }
 func (m *DataTransfer) GetResponse() messages.Response {
-	return &csres.DataTransfer{}
+	return &csresp.DataTransfer{}
 }
 func (m *GetCompositeSchedule) GetResponse() messages.Response {
-	return &csres.GetCompositeSchedule{}
+	return &csresp.GetCompositeSchedule{}
 }
 func (m *GetConfiguration) GetResponse() messages.Response {
-	return &csres.GetConfiguration{}
+	return &csresp.GetConfiguration{}
 }
 func (m *GetDiagnostics) GetResponse() messages.Response {
-	return &csres.GetDiagnostics{}
+	return &csresp.GetDiagnostics{}
 }
 func (m *GetLocalListVersion) GetResponse() messages.Response {
-	return &csres.GetLocalListVersion{}
+	return &csresp.GetLocalListVersion{}
 }
 func (m *RemoteStartTransaction) GetResponse() messages.Response {
-	return &csres.RemoteStartTransaction{}
+	return &csresp.RemoteStartTransaction{}
 }
 func (m *RemoteStopTransaction) GetResponse() messages.Response {
-	return &csres.RemoteStopTransaction{}
+	return &csresp.RemoteStopTransaction{}
 }
 func (m *ReserveNow) GetResponse() messages.Response {
-	return &csres.ReserveNow{}
+	return &csresp.ReserveNow{}
 }
 func (m *Reset) GetResponse() messages.Response {
-	return &csres.Reset{}
+	return &csresp.Reset{}
 }
 func (m *SendLocalList) GetResponse() messages.Response {
-	return &csres.SendLocalList{}
+	return &csresp.SendLocalList{}
 }
 func (m *TriggerMessage) GetResponse() messages.Response {
-	return &csres.TriggerMessage{}
+	return &csresp.TriggerMessage{}
 }
 func (m *UnlockConnector) GetResponse() messages.Response {
-	return &csres.UnlockConnector{}
+	return &csresp.UnlockConnector{}
 }
 func (m *UpdateFirmware) GetResponse() messages.Response {
-	return &csres.UpdateFirmware{}
+	return &csresp.UpdateFirmware{}
 }
 func (m *SetChargingProfile) GetResponse() messages.Response {
-	return &csres.SetChargingProfile{}
+	return &csresp.SetChargingProfile{}
 }

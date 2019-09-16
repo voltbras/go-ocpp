@@ -1,4 +1,4 @@
-package csres
+package csresp
 
 import (
 	"bytes"

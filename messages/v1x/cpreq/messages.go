@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/eduhenke/go-ocpp/messages"
-	"github.com/eduhenke/go-ocpp/messages/v1x/cpres"
+	"github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
 )
 
 // Authorize
@@ -151,17 +151,17 @@ func (m *StartTransaction) Action() string              { return "StartTransacti
 func (m *StatusNotification) Action() string            { return "StatusNotification" }
 func (m *StopTransaction) Action() string               { return "StopTransaction" }
 
-func (m *Authorize) GetResponse() messages.Response        { return &cpres.Authorize{} }
-func (m *BootNotification) GetResponse() messages.Response { return &cpres.BootNotification{} }
-func (m *DataTransfer) GetResponse() messages.Response     { return &cpres.DataTransfer{} }
+func (m *Authorize) GetResponse() messages.Response        { return &cpresp.Authorize{} }
+func (m *BootNotification) GetResponse() messages.Response { return &cpresp.BootNotification{} }
+func (m *DataTransfer) GetResponse() messages.Response     { return &cpresp.DataTransfer{} }
 func (m *DiagnosticsStatusNotification) GetResponse() messages.Response {
-	return &cpres.DiagnosticsStatusNotification{}
+	return &cpresp.DiagnosticsStatusNotification{}
 }
 func (m *FirmwareStatusNotification) GetResponse() messages.Response {
-	return &cpres.FirmwareStatusNotification{}
+	return &cpresp.FirmwareStatusNotification{}
 }
-func (m *Heartbeat) GetResponse() messages.Response          { return &cpres.Heartbeat{} }
-func (m *MeterValues) GetResponse() messages.Response        { return &cpres.MeterValues{} }
-func (m *StartTransaction) GetResponse() messages.Response   { return &cpres.StartTransaction{} }
-func (m *StatusNotification) GetResponse() messages.Response { return &cpres.StatusNotification{} }
-func (m *StopTransaction) GetResponse() messages.Response    { return &cpres.StopTransaction{} }
+func (m *Heartbeat) GetResponse() messages.Response          { return &cpresp.Heartbeat{} }
+func (m *MeterValues) GetResponse() messages.Response        { return &cpresp.MeterValues{} }
+func (m *StartTransaction) GetResponse() messages.Response   { return &cpresp.StartTransaction{} }
+func (m *StatusNotification) GetResponse() messages.Response { return &cpresp.StatusNotification{} }
+func (m *StopTransaction) GetResponse() messages.Response    { return &cpresp.StopTransaction{} }

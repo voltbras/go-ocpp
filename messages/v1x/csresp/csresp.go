@@ -1,4 +1,4 @@
-package csres
+package csresp
 
 import (
 	"errors"
@@ -13,8 +13,8 @@ type CentralSystemResponse interface {
 
 type centralSystemResponse struct{}
 
-func (csres *centralSystemResponse) IsCentralSystemResponse() {}
-func (csres *centralSystemResponse) IsResponse() {}
+func (csresp *centralSystemResponse) IsCentralSystemResponse() {}
+func (csresp *centralSystemResponse) IsResponse() {}
 
 var (
 	ErrorNotCentralSystemResponse = errors.New("not a central system response")

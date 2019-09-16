@@ -21,12 +21,12 @@ import (
     "github.com/eduhenke/go-ocpp"
     "github.com/eduhenke/go-ocpp/csystem"
     "github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
-    "github.com/eduhenke/go-ocpp/messages/v1x/cpres"
+    "github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
 )
 
 func main() {
     csys := csystem.New()
-    go csys.Run(":12811", func(req cpreq.ChargePointRequest, cpID string) (cpres.ChargePointResponse, error) {
+    go csys.Run(":12811", func(req cpreq.ChargePointRequest, cpID string) (cpresp.ChargePointResponse, error) {
         // Return an error to the Station communicating to the Central System
         //
         // station, isAuthorized := getStation(cpID)
@@ -37,20 +37,20 @@ func main() {
         switch req := req.(type) {
         case *cpreq.BootNotification:
             // accept chargepoint in the network
-            return &cpres.BootNotification{
+            return &cpresp.BootNotification{
                 Status:      "Accepted",
                 CurrentTime: time.Now(),
                 Interval:    60,
             }, nil
 
         case *cpreq.Heartbeat:
-            return &cpres.Heartbeat{CurrentTime: time.Now()}, nil
+            return &cpresp.Heartbeat{CurrentTime: time.Now()}, nil
 
         case *cpreq.StatusNotification:
             if req.Status != "Available" {
                 // chargepoint is unavailable
             }
-            return &cpres.StatusNotification{}, nil
+            return &cpresp.StatusNotification{}, nil
 
         default:
             return nil, errors.New("Response not supported")
@@ -71,7 +71,7 @@ import (
     "github.com/eduhenke/go-ocpp"
     "github.com/eduhenke/go-ocpp/cstationsim"
     "github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
-    "github.com/eduhenke/go-ocpp/messages/v1x/cpres"
+    "github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
 )
 
 func main() {
@@ -82,7 +82,7 @@ func main() {
     if err != nil {
         fmt.Println("could't send heartbeat:", err)
     }
-    resp, ok := rawResp.(*cpres.Heartbeat)
+    resp, ok := rawResp.(*cpresp.Heartbeat)
     if !ok {
         fmt.Println("response is not a heartbeat response")
     }

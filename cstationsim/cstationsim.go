@@ -4,7 +4,7 @@ import (
 	"github.com/eduhenke/go-ocpp"
 	"github.com/eduhenke/go-ocpp/internal/log"
 	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
-	"github.com/eduhenke/go-ocpp/messages/v1x/cpres"
+	"github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
 	"github.com/eduhenke/go-ocpp/service/cs"
 	"github.com/eduhenke/go-ocpp/soap"
 	"github.com/eduhenke/go-ocpp/wsconn"
@@ -49,14 +49,14 @@ func (st *Station) Run() {
 	}
 }
 
-func (st *Station) heartbeat() (*cpres.Heartbeat, error) {
+func (st *Station) heartbeat() (*cpresp.Heartbeat, error) {
 	rawResp, err := st.CsService.Send(&cpreq.Heartbeat{})
 	if err != nil {
 		return nil, err
 	}
-	resp, ok := rawResp.(*cpres.Heartbeat)
+	resp, ok := rawResp.(*cpresp.Heartbeat)
 	if !ok {
-		return nil, cpres.ErrorNotChargePointResponse
+		return nil, cpresp.ErrorNotChargePointResponse
 	}
 	return resp, nil
 }

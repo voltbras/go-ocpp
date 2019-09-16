@@ -1,4 +1,4 @@
-package csres
+package csresp
 
 import (
 	"encoding/xml"
