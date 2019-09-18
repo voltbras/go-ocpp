@@ -76,7 +76,7 @@ func (s *Client) Call(soapAction string, request messages.Request, response mess
 
 	tr := &http.Transport{
 		Dial: func(network, addr string) (net.Conn, error) {
-			return net.DialTimeout(network, addr, 30*time.Second)
+			return net.DialTimeout(network, addr, 8*time.Second)
 		},
 	}
 
