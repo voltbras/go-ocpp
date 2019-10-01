@@ -9,6 +9,14 @@ type JsonService struct {
 	conn *ws.Conn
 }
 
+// NewJsonService before calling it, you should
+// be reading messages from the connection
+// as to get the responses back:
+// go func() {
+// 	for {
+// 		conn.ReadMessage()
+// 	}
+// }()
 func NewJsonService(conn *ws.Conn) *JsonService {
 	return &JsonService{
 		conn: conn,

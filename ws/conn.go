@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"sync"
+
 	"github.com/eduhenke/go-ocpp/internal/log"
 	"github.com/eduhenke/go-ocpp/messages"
 	"github.com/eduhenke/go-ocpp/messages/req"
 	"github.com/google/uuid"
-	"net/http"
-	"sync"
 
 	"github.com/eduhenke/go-ocpp"
 	"github.com/gorilla/websocket"
@@ -18,17 +19,23 @@ import (
 
 type Conn struct {
 	*websocket.Conn
-	sendMux sync.Mutex
+	sendMux      sync.Mutex
 	sentMessages map[MessageID]*CallMessage
-	requests chan struct{messages.Request; MessageID}
+	requests     chan struct {
+		messages.Request
+		MessageID
+	}
 	responsesOf map[MessageID]chan messages.Response
 }
 
 func newConn(socket *websocket.Conn) *Conn {
 	return &Conn{
-		Conn: socket,
+		Conn:         socket,
 		sentMessages: make(map[MessageID]*CallMessage, 0),
-		requests: make(chan struct{messages.Request; MessageID}, 0),
+		requests: make(chan struct {
+			messages.Request
+			MessageID
+		}, 0),
 		responsesOf: make(map[MessageID]chan messages.Response),
 	}
 }
@@ -47,7 +54,11 @@ func Dial(identity, csURL string, version ocpp.Version) (*Conn, error) {
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
+
 func Handshake(w http.ResponseWriter, r *http.Request, supportedVersions []ocpp.Version) (*Conn, error) {
 	upgraderHeader := http.Header{}
 	for _, v := range supportedVersions {
@@ -148,7 +159,10 @@ func (c *Conn) ReadMessage() error {
 		if wserr != Nil {
 			break
 		}
-		c.requests <- struct{messages.Request; MessageID}{req, msg.ID()}
+		c.requests <- struct {
+			messages.Request
+			MessageID
+		}{req, msg.ID()}
 	case *CallResultMessage:
 		var resp messages.Response
 		resp, wserr = c.callResultToResponse(m)
@@ -219,7 +233,10 @@ func (c *Conn) sendMessage(msg Message) error {
 	return nil
 }
 
-func (c *Conn) Requests() <-chan struct{messages.Request; MessageID} {
+func (c *Conn) Requests() <-chan struct {
+	messages.Request
+	MessageID
+} {
 	return c.requests
 }
 
@@ -230,11 +247,13 @@ func (c *Conn) SendRequest(request messages.Request) (messages.Response, error) 
 		return nil, err
 	}
 	c.sentMessages[id] = msg
+	c.responsesOf[id] = make(chan messages.Response)
 	err = c.sendMessage(msg)
 	if err != nil {
 		return nil, err
 	}
 	resp := <-c.responsesOf[id]
 	delete(c.sentMessages, id)
+	delete(c.responsesOf, id)
 	return resp, nil
 }
