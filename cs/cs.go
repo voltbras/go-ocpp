@@ -42,6 +42,8 @@ func (csys *CentralSystem) Run(port string, cphandler ChargePointMessageHandler)
 }
 
 func (csys *CentralSystem) handleWebsocket(w http.ResponseWriter, r *http.Request, cphandler ChargePointMessageHandler) {
+	log.Debug("New WS-wannabe request\n")
+	log.Debug("Current WS connections map: %v\n", csys.Conns)
 	cpID := strings.TrimPrefix(r.URL.Path, "/")
 	conn, err := ws.Handshake(w, r, []ocpp.Version{ocpp.V16})
 	if err != nil {
@@ -50,6 +52,7 @@ func (csys *CentralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 	}
 	csys.Conns[cpID] = conn
 	log.Debug("Accepted new WS conn: %v. from: %v\n", conn, cpID)
+	log.Debug("Current WS connections map: %v\n", csys.Conns)
 	go func() {
 		for {
 			err := conn.ReadMessage()
