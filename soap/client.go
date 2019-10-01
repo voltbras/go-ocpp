@@ -62,7 +62,12 @@ func (s *Client) Call(soapAction string, request messages.Request, response mess
 	if err := encoder.Flush(); err != nil {
 		return err
 	}
+	// read bytes from xml encoder buffer
 	rawReq := buffer.Bytes()
+
+	// add <?xml version="1.0" encoding="UTF-8"?>
+	rawReq = []byte(xml.Header + string(rawReq))
+
 	log.Debug("Sending request with %d bytes\n", len(rawReq))
 	log.Debug("Sending raw request:\n%s", string(rawReq))
 
@@ -72,6 +77,8 @@ func (s *Client) Call(soapAction string, request messages.Request, response mess
 	}
 
 	req.Header.Add("Content-Type", "application/soap+xml")
+	req.Header.Add("Content-Type", "application/xml; charset=utf-8")
+
 	req.Close = true
 
 	tr := &http.Transport{
