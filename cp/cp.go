@@ -4,14 +4,14 @@ import (
 	"fmt"
 
 	"github.com/eduhenke/go-ocpp"
-	"github.com/eduhenke/go-ocpp/cs"
 	"github.com/eduhenke/go-ocpp/internal/log"
+	"github.com/eduhenke/go-ocpp/internal/service"
 	"github.com/eduhenke/go-ocpp/soap"
 	"github.com/eduhenke/go-ocpp/ws"
 )
 
 type ChargePoint struct {
-	cs.Service
+	service.CentralSystem
 	identity         string
 	centralSystemURL string
 	version          ocpp.Version
@@ -19,7 +19,7 @@ type ChargePoint struct {
 }
 
 func NewChargePoint(identity, csURL string, version ocpp.Version, transport ocpp.Transport) (*ChargePoint, error) {
-	var service cs.Service
+	var csService service.CentralSystem
 	if transport == ocpp.JSON {
 		conn, err := ws.Dial(identity, csURL, version)
 		if err != nil {
@@ -35,13 +35,13 @@ func NewChargePoint(identity, csURL string, version ocpp.Version, transport ocpp
 				}
 			}
 		}()
-		service = cs.NewJsonService(conn)
+		csService = service.NewCentralSystemJSON(conn)
 	}
 	if transport == ocpp.SOAP {
-		service = cs.NewSoapService(csURL, &soap.CallOptions{ChargeBoxIdentity: identity})
+		csService = service.NewCentralSystemSOAP(csURL, &soap.CallOptions{ChargeBoxIdentity: identity})
 	}
 	return &ChargePoint{
-		Service:          service,
+		CentralSystem:          csService,
 		identity:         identity,
 		centralSystemURL: csURL,
 		version:          version,

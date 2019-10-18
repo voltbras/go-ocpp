@@ -7,6 +7,7 @@ import (
 
 	"github.com/eduhenke/go-ocpp"
 	"github.com/eduhenke/go-ocpp/internal/log"
+	"github.com/eduhenke/go-ocpp/internal/service"
 	"github.com/eduhenke/go-ocpp/messages"
 	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
 	"github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
@@ -17,18 +18,23 @@ import (
 // ChargePointMessageHandler handles the OCPP messages coming from the charger
 type ChargePointMessageHandler func(cprequest cpreq.ChargePointRequest, cpID string) (cpresp.ChargePointResponse, error)
 
-type CentralSystem struct {
-	Conns map[string]*ws.Conn
+type CentralSystem interface {
+	Run(port string, cphandler ChargePointMessageHandler) error
+	GetServiceOf(cpID string, version ocpp.Version, url string) (service.ChargePoint, error) 
 }
 
-func NewCentralSystem() *CentralSystem {
-	return &CentralSystem{
-		Conns: make(map[string]*ws.Conn, 0),
+type centralSystem struct {
+	conns map[string]*ws.Conn
+}
+
+func New() CentralSystem {
+	return &centralSystem{
+		conns: make(map[string]*ws.Conn, 0),
 	}
 }
 
 
-func (csys *CentralSystem) Run(port string, cphandler ChargePointMessageHandler) error {
+func (csys *centralSystem) Run(port string, cphandler ChargePointMessageHandler) error {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if ws.IsWebSocketUpgrade(r) {
 			csys.handleWebsocket(w, r, cphandler)
@@ -41,25 +47,25 @@ func (csys *CentralSystem) Run(port string, cphandler ChargePointMessageHandler)
 	return http.ListenAndServe(port, nil)
 }
 
-func (csys *CentralSystem) handleWebsocket(w http.ResponseWriter, r *http.Request, cphandler ChargePointMessageHandler) {
+func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Request, cphandler ChargePointMessageHandler) {
 	log.Debug("New WS-wannabe request\n")
-	log.Debug("Current WS connections map: %v\n", csys.Conns)
+	log.Debug("Current WS connections map: %v\n", csys.conns)
 	cpID := strings.TrimPrefix(r.URL.Path, "/")
 	conn, err := ws.Handshake(w, r, []ocpp.Version{ocpp.V16})
 	if err != nil {
 		log.Error("Couldn't handshake request %w\n", err)
 		return
 	}
-	csys.Conns[cpID] = conn
+	csys.conns[cpID] = conn
 	log.Debug("Accepted new WS conn: %v. from: %v\n", conn, cpID)
-	log.Debug("Current WS connections map: %v\n", csys.Conns)
+	log.Debug("Current WS connections map: %v\n", csys.conns)
 	go func() {
 		for {
 			err := conn.ReadMessage()
 			if err != nil {
 				log.Error("On receiving a message: %w\n", err)
 				_ = conn.Close()
-				delete(csys.Conns, cpID)
+				delete(csys.conns, cpID)
 				break
 			}
 		}
@@ -78,7 +84,7 @@ func (csys *CentralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func (csys *CentralSystem) handleSoap(w http.ResponseWriter, r *http.Request, cphandler ChargePointMessageHandler) {
+func (csys *centralSystem) handleSoap(w http.ResponseWriter, r *http.Request, cphandler ChargePointMessageHandler) {
 	log.Debug("New SOAP request\n")
 	err := soap.Handle(w, r, func(request messages.Request, cpID string) (messages.Response, error) {
 		req, ok := request.(cpreq.ChargePointRequest)
@@ -90,4 +96,18 @@ func (csys *CentralSystem) handleSoap(w http.ResponseWriter, r *http.Request, cp
 	if err != nil {
 		log.Error("Couldn't handle SOAP request: %w", err)
 	}
+}
+
+func (csys *centralSystem) GetServiceOf(cpID string, version ocpp.Version, url string) (service.ChargePoint, error) {
+	if version == ocpp.V15 {
+		return service.NewChargePointSOAP(url, nil), nil
+	}
+	if version == ocpp.V16 {
+		conn := csys.conns[cpID]
+		if conn == nil { // TODO: or conn closed
+			return nil, errors.New("no connection to this charge point")
+		}
+		return service.NewChargePointJSON(conn), nil
+	}
+	return nil, errors.New("charge point has no configured OCPP version(1.5/1.6)")
 }

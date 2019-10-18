@@ -5,20 +5,20 @@ import (
 	"github.com/eduhenke/go-ocpp/soap"
 )
 
-type SoapService struct {
-	client *soap.Client
+type SOAP struct {
+	client  *soap.Client
 	options *soap.CallOptions
 }
 
-func NewSoapService(URL string, options *soap.CallOptions) *SoapService {
+func NewSOAP(URL string, options *soap.CallOptions) *SOAP {
 	client := soap.NewClient(URL)
-	return &SoapService{
-		client: client,
+	return &SOAP{
+		client:  client,
 		options: options,
 	}
 }
 
-func (service *SoapService) Send(req messages.Request) (messages.Response, error) {
+func (service *SOAP) Send(req messages.Request) (messages.Response, error) {
 	resp := req.GetResponse()
 	err := service.client.Call(req.Action(), req, resp, service.options)
 	if err != nil {

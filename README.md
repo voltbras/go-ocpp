@@ -16,7 +16,7 @@ In SOAP, error messages will be sent back via Fault, as specified in OCPP v1.5
 In Websockets, error messages will be sent back via OCPP-J v1.6
 
 ```go
-csys := cs.NewCentralSystem()
+csys := cs.New()
 go csys.Run(":12811", func(req cpreq.ChargePointRequest, cpID string) (cpresp.ChargePointResponse, error) {
     // Return an error to the Station communicating to the Central System
     //

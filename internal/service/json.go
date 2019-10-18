@@ -5,11 +5,11 @@ import (
 	"github.com/eduhenke/go-ocpp/ws"
 )
 
-type JsonService struct {
+type JSON struct {
 	conn *ws.Conn
 }
 
-// NewJsonService before calling it, you should
+// NewJSON before calling it, you should
 // be reading messages from the connection
 // as to get the responses back:
 // go func() {
@@ -17,12 +17,12 @@ type JsonService struct {
 // 		conn.ReadMessage()
 // 	}
 // }()
-func NewJsonService(conn *ws.Conn) *JsonService {
-	return &JsonService{
+func NewJSON(conn *ws.Conn) *JSON {
+	return &JSON{
 		conn: conn,
 	}
 }
 
-func (service *JsonService) Send(req messages.Request) (messages.Response, error) {
+func (service *JSON) Send(req messages.Request) (messages.Response, error) {
 	return service.conn.SendRequest(req)
 }

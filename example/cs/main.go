@@ -16,7 +16,7 @@ import (
 func main() {
 	ocpp.SetDebugLogger(log.New(os.Stdout, "DEBUG:", log.Ltime))
 	ocpp.SetErrorLogger(log.New(os.Stderr, "ERROR:", log.Ltime))
-	csys := cs.NewCentralSystem()
+	csys := cs.New()
 	go csys.Run(":12811", func(req cpreq.ChargePointRequest, cpID string) (cpresp.ChargePointResponse, error) {
 		fmt.Printf("EXAMPLE(MAIN): Request from %s\n", cpID)
 		switch req := req.(type) {
