@@ -13,7 +13,7 @@ Just pass a handler that takes in a `cpreq.ChargePointRequest` and returns a `(c
 
 In SOAP, error messages will be sent back via Fault, as specified in OCPP v1.5
 
-In Websockets, error messages will be sent back via OCPP-J v1.6
+In Websockets, error messages will be sent back as specified in OCPP-J v1.6
 
 ```go
 csys := cs.New()
