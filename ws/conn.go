@@ -137,12 +137,13 @@ func (c *Conn) ReadMessage() error {
 		return err
 	}
 	messageBytes = bytes.TrimSpace(bytes.Replace(messageBytes, newline, space, -1))
+	log.Debug("Received a message, raw: %v\n", string(messageBytes))
 	msg, err := UnmarshalMessage(messageBytes)
 	if err != nil {
 		return err
 	}
 
-	log.Debug("Received a message: %v\n", msg)
+	log.Debug("Received a message, parsed: %v\n", msg)
 
 	if msg.Type() == CallResult || msg.Type() == CallError {
 		_, ok := c.sentMessages[msg.ID()]
