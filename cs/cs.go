@@ -19,8 +19,17 @@ import (
 type ChargePointMessageHandler func(cprequest cpreq.ChargePointRequest, cpID string) (cpresp.ChargePointResponse, error)
 
 type CentralSystem interface {
+	// Run the central system on the given port
+	// and handles each incoming ChargepointRequest
 	Run(port string, cphandler ChargePointMessageHandler) error
-	GetServiceOf(cpID string, version ocpp.Version, url string) (service.ChargePoint, error) 
+
+	// GetServiceOf a chargepoint to enable
+	// communication with the chargepoint
+	//
+	// the url parameter is *NOT* used if
+	// the link between the CentralSystem
+	// and Chargepoint is via Websocket
+	GetServiceOf(cpID string, version ocpp.Version, url string) (service.ChargePoint, error)
 }
 
 type centralSystem struct {
@@ -32,7 +41,6 @@ func New() CentralSystem {
 		conns: make(map[string]*ws.Conn, 0),
 	}
 }
-
 
 func (csys *centralSystem) Run(port string, cphandler ChargePointMessageHandler) error {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
