@@ -23,7 +23,7 @@ func NewChargePoint(identity, csURL string, version ocpp.Version, transport ocpp
 	if transport == ocpp.JSON {
 		conn, err := ws.Dial(identity, csURL, version)
 		if err != nil {
-			return nil, fmt.Errorf("could not dial to central system %w", err)
+			return nil, fmt.Errorf("could not dial to central system: %w", err)
 		}
 		go func() {
 			for {
@@ -43,7 +43,7 @@ func NewChargePoint(identity, csURL string, version ocpp.Version, transport ocpp
 		csService = service.NewCentralSystemSOAP(csURL, &soap.CallOptions{ChargeBoxIdentity: identity})
 	}
 	return &ChargePoint{
-		CentralSystem:          csService,
+		CentralSystem:    csService,
 		identity:         identity,
 		centralSystemURL: csURL,
 		version:          version,

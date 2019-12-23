@@ -42,7 +42,7 @@ func newConn(socket *websocket.Conn) *Conn {
 
 func Dial(identity, csURL string, version ocpp.Version) (*Conn, error) {
 	dialer := websocket.Dialer{
-		Subprotocols: []string{string(version)},
+		Subprotocols: []string{"ocpp"+string(version)},
 	}
 	socket, _, err := dialer.Dial(csURL+"/"+identity, http.Header{})
 	if err != nil {
