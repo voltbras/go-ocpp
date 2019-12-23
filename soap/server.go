@@ -3,22 +3,22 @@ package soap
 import (
 	"errors"
 	"fmt"
-	"github.com/eduhenke/go-ocpp/internal/log"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/eduhenke/go-ocpp/internal/log"
 
 	"github.com/eduhenke/go-ocpp/messages"
 
 	"github.com/eduhenke/go-ocpp"
-
 )
 
 func Handle(w http.ResponseWriter, r *http.Request, handle ocpp.MessageHandler) error {
 	defer r.Body.Close()
 
 	rawReq, _ := ioutil.ReadAll(r.Body)
-	log.Debug("Received request with %d bytes from: %s\n", len(rawReq), r.RemoteAddr)
-	log.Debug("Received raw request:\n%s", string(rawReq))
+	log.Debug("Received request with %d bytes from: %s", len(rawReq), r.RemoteAddr)
+	log.Debug("Received raw request: %s", string(rawReq))
 	reqEnv, err := Unmarshal(rawReq)
 
 	if err != nil {
@@ -39,8 +39,8 @@ func Handle(w http.ResponseWriter, r *http.Request, handle ocpp.MessageHandler) 
 		return fmt.Errorf("couldn't encode response: %w", err)
 	}
 
-	log.Debug("Sending response with %d bytes\n", len(rawResp))
-	log.Debug("Sending raw response:\n%s", string(rawResp))
+	log.Debug("Sending response with %d bytes", len(rawResp))
+	log.Debug("Sending raw response: %s", string(rawResp))
 
 	w.Header().Set("Content-Type", "application/soap+xml")
 	w.Header().Set("Content-Encoding", "deflate")

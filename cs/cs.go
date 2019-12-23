@@ -3,6 +3,7 @@ package cs
 import (
 	"errors"
 	"net/http"
+	"net/http/httputil"
 	"strings"
 
 	"github.com/eduhenke/go-ocpp"
@@ -51,29 +52,33 @@ func (csys *centralSystem) Run(port string, cphandler ChargePointMessageHandler)
 		}
 
 	})
-	log.Debug("Central system running on port: %s\n", port)
+	log.Debug("Central system running on port: %s", port)
 	return http.ListenAndServe(port, nil)
 }
 
 func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Request, cphandler ChargePointMessageHandler) {
-	log.Debug("Current WS connections map: %v\n", csys.conns)
+	log.Debug("Current WS connections map: %v", csys.conns)
 	cpID := strings.TrimPrefix(r.URL.Path, "/")
+
+	rawReq, _ := httputil.DumpRequest(r, true)
+	log.Debug("Raw WS request: %s": string(rawReq))
+
 	conn, err := ws.Handshake(w, r, []ocpp.Version{ocpp.V16})
 	if err != nil {
-		log.Error("Couldn't handshake request %w\n", err)
+		log.Error("Couldn't handshake request %w", err)
 		return
 	}
 	csys.conns[cpID] = conn
-	log.Debug("Connected with %s\n", cpID)
+	log.Debug("Connected with %s", cpID)
 	go func() {
 		for {
 			err := conn.ReadMessage()
 			if err != nil {
 				if !ws.IsNormalCloseError(err) {
-					log.Error("On receiving a message: %w\n", err)
+					log.Error("On receiving a message: %w", err)
 				}
 				_ = conn.Close()
-				log.Debug("Closed connection of: %s\n", cpID)
+				log.Debug("Closed connection of: %s", cpID)
 				delete(csys.conns, cpID)
 				break
 			}
@@ -94,7 +99,7 @@ func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 }
 
 func (csys *centralSystem) handleSoap(w http.ResponseWriter, r *http.Request, cphandler ChargePointMessageHandler) {
-	log.Debug("New SOAP request\n")
+	log.Debug("New SOAP request")
 	err := soap.Handle(w, r, func(request messages.Request, cpID string) (messages.Response, error) {
 		req, ok := request.(cpreq.ChargePointRequest)
 		if !ok {

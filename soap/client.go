@@ -68,8 +68,8 @@ func (s *Client) Call(soapAction string, request messages.Request, response mess
 	// add <?xml version="1.0" encoding="UTF-8"?>
 	rawReq = []byte(xml.Header + string(rawReq))
 
-	log.Debug("Sending request with %d bytes\n", len(rawReq))
-	log.Debug("Sending raw request:\n%s", string(rawReq))
+	log.Debug("Sending request with %d bytes", len(rawReq))
+	log.Debug("Sending raw request: %s", string(rawReq))
 
 	req, err := http.NewRequest("POST", s.url, buffer)
 	if err != nil {

@@ -42,7 +42,7 @@ func newConn(socket *websocket.Conn) *Conn {
 
 func Dial(identity, csURL string, version ocpp.Version) (*Conn, error) {
 	dialer := websocket.Dialer{
-		Subprotocols: []string{"ocpp"+string(version)},
+		Subprotocols: []string{"ocpp" + string(version)},
 	}
 	socket, _, err := dialer.Dial(csURL+"/"+identity, http.Header{})
 	if err != nil {
@@ -137,13 +137,13 @@ func (c *Conn) ReadMessage() error {
 		return err
 	}
 	messageBytes = bytes.TrimSpace(bytes.Replace(messageBytes, newline, space, -1))
-	log.Debug("Received a message, raw: %v\n", string(messageBytes))
+	log.Debug("Received a message, raw: %v", string(messageBytes))
 	msg, err := UnmarshalMessage(messageBytes)
 	if err != nil {
 		return err
 	}
 
-	log.Debug("Received a message, parsed: %v\n", msg)
+	log.Debug("Received a message, parsed: %v", msg)
 
 	if msg.Type() == CallResult || msg.Type() == CallError {
 		_, ok := c.sentMessages[msg.ID()]
@@ -225,12 +225,12 @@ func (c *Conn) sendMessage(msg Message) error {
 	if err != nil {
 		return fmt.Errorf("on marshalling message: %w", err)
 	}
-	log.Debug("Sending message [raw]: %v\n", string(bts))
+	log.Debug("Sending message [raw]: %v", string(bts))
 	err = c.Conn.WriteMessage(websocket.TextMessage, bts)
 	if err != nil {
 		return fmt.Errorf("on sending message: %w", err)
 	}
-	log.Debug("Sent message!\n")
+	log.Debug("Sent message!")
 	return nil
 }
 

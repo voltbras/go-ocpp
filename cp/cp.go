@@ -30,7 +30,7 @@ func NewChargePoint(identity, csURL string, version ocpp.Version, transport ocpp
 				err := conn.ReadMessage()
 				if err != nil {
 					if !ws.IsNormalCloseError(err) {
-						log.Error("On receiving a message: %w\n", err)
+						log.Error("On receiving a message: %w", err)
 					}
 					_ = conn.Close()
 					break

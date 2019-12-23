@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	stationID := "id01"
-	centralSystemURL := "ws://localhost:12811"
+	stationID := "19400010"
+	centralSystemURL := "ws://ocpp.voltbras.com.br:80"
 	st, err := cp.NewChargePoint(stationID, centralSystemURL, ocpp.V16, ocpp.JSON) // or ocpp.SOAP
 	if err != nil {
 		fmt.Println("could not create charge point:", err)
