@@ -61,7 +61,7 @@ func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 	cpID := strings.TrimPrefix(r.URL.Path, "/")
 
 	rawReq, _ := httputil.DumpRequest(r, true)
-	log.Debug("Raw WS request: %s": string(rawReq))
+	log.Debug("Raw WS request: %s", string(rawReq))
 
 	conn, err := ws.Handshake(w, r, []ocpp.Version{ocpp.V16})
 	if err != nil {
