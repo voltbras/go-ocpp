@@ -6,11 +6,22 @@ import (
 	"github.com/eduhenke/go-ocpp"
 	"github.com/eduhenke/go-ocpp/internal/log"
 	"github.com/eduhenke/go-ocpp/internal/service"
+	"github.com/eduhenke/go-ocpp/messages/v1x/csreq"
+	"github.com/eduhenke/go-ocpp/messages/v1x/csresp"
 	"github.com/eduhenke/go-ocpp/soap"
 	"github.com/eduhenke/go-ocpp/ws"
 )
 
-type ChargePoint struct {
+// CentralSystemMessageHandler handles the OCPP messages coming from the central system
+type CentralSystemMessageHandler func(cprequest csreq.CentralSystemRequest) (csresp.CentralSystemResponse, error)
+
+type ChargePoint interface {
+	// Run the charge point on the given port
+	// and handles each incoming CentralSystemRequest
+	Run(port string, cphandler CentralSystemMessageHandler) error
+}
+
+type chargePoint struct {
 	service.CentralSystem
 	identity         string
 	centralSystemURL string
@@ -18,35 +29,68 @@ type ChargePoint struct {
 	transport        ocpp.Transport
 }
 
-func NewChargePoint(identity, csURL string, version ocpp.Version, transport ocpp.Transport) (*ChargePoint, error) {
+func New(identity, csURL string, version ocpp.Version, transport ocpp.Transport, cshandler CentralSystemMessageHandler) (*chargePoint, error) {
 	var csService service.CentralSystem
 	if transport == ocpp.JSON {
 		conn, err := ws.Dial(identity, csURL, version)
 		if err != nil {
 			return nil, fmt.Errorf("could not dial to central system: %w", err)
 		}
-		go func() {
-			for {
-				err := conn.ReadMessage()
-				if err != nil {
-					if !ws.IsNormalCloseError(err) {
-						log.Error("On receiving a message: %w", err)
-					}
-					_ = conn.Close()
-					break
-				}
-			}
-		}()
+		go handleWebsocket(conn, cshandler)
 		csService = service.NewCentralSystemJSON(conn)
 	}
 	if transport == ocpp.SOAP {
+		// go handleSoap(cshandler)
 		csService = service.NewCentralSystemSOAP(csURL, &soap.CallOptions{ChargeBoxIdentity: identity})
 	}
-	return &ChargePoint{
+	return &chargePoint{
 		CentralSystem:    csService,
 		identity:         identity,
 		centralSystemURL: csURL,
 		version:          version,
 		transport:        transport,
 	}, nil
+}
+
+func handleWebsocket(conn *ws.Conn, cshandler CentralSystemMessageHandler) {
+	go func() {
+		for {
+			err := conn.ReadMessage()
+			if err != nil {
+				if !ws.IsNormalCloseError(err) {
+					log.Error("On receiving a message: %w", err)
+				}
+				_ = conn.Close()
+				log.Debug("Closed connection of central system")
+				break
+			}
+		}
+	}()
+	for {
+		req := <-conn.Requests()
+		cprequest, ok := req.Request.(csreq.CentralSystemRequest)
+		if !ok {
+			log.Error(csreq.ErrorNotCentralSystemRequest.Error())
+		}
+		cpresponse, err := cshandler(cprequest)
+		err = conn.SendResponse(req.MessageID, cpresponse, err)
+		if err != nil {
+			log.Error(err.Error())
+		}
+	}
+}
+
+func handleSoap(cshandler CentralSystemMessageHandler) {
+	panic("SOAP yet not supported in ChargePoint")
+	// log.Debug("New SOAP request")
+	// err := soap.Handle(w, r, func(request messages.Request, cpID string) (messages.Response, error) {
+	// 	req, ok := request.(cpreq.ChargePointRequest)
+	// 	if !ok {
+	// 		return nil, errors.New("request is not a cprequest")
+	// 	}
+	// 	return cshandler(req, cpID)
+	// })
+	// if err != nil {
+	// 	log.Error("Couldn't handle SOAP request: %w", err)
+	// }
 }
