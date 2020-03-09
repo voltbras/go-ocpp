@@ -1,6 +1,7 @@
 package cp
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/eduhenke/go-ocpp"
@@ -16,9 +17,10 @@ import (
 type CentralSystemMessageHandler func(cprequest csreq.CentralSystemRequest) (csresp.CentralSystemResponse, error)
 
 type ChargePoint interface {
+	service.CentralSystem
 	// Run the charge point on the given port
 	// and handles each incoming CentralSystemRequest
-	Run(port string, cphandler CentralSystemMessageHandler) error
+	Run(port *string, cphandler CentralSystemMessageHandler) error
 }
 
 type chargePoint struct {
@@ -27,20 +29,21 @@ type chargePoint struct {
 	centralSystemURL string
 	version          ocpp.Version
 	transport        ocpp.Transport
+	conn             *ws.Conn
 }
 
-func New(identity, csURL string, version ocpp.Version, transport ocpp.Transport, cshandler CentralSystemMessageHandler) (*chargePoint, error) {
+func New(identity, csURL string, version ocpp.Version, transport ocpp.Transport) (*chargePoint, error) {
 	var csService service.CentralSystem
+	var conn *ws.Conn
 	if transport == ocpp.JSON {
-		conn, err := ws.Dial(identity, csURL, version)
+		var err error
+		conn, err = ws.Dial(identity, csURL, version)
 		if err != nil {
 			return nil, fmt.Errorf("could not dial to central system: %w", err)
 		}
-		go handleWebsocket(conn, cshandler)
 		csService = service.NewCentralSystemJSON(conn)
 	}
 	if transport == ocpp.SOAP {
-		// go handleSoap(cshandler)
 		csService = service.NewCentralSystemSOAP(csURL, &soap.CallOptions{ChargeBoxIdentity: identity})
 	}
 	return &chargePoint{
@@ -49,7 +52,21 @@ func New(identity, csURL string, version ocpp.Version, transport ocpp.Transport,
 		centralSystemURL: csURL,
 		version:          version,
 		transport:        transport,
+		conn:             conn,
 	}, nil
+}
+
+func (cp *chargePoint) Run(port *string, cshandler CentralSystemMessageHandler) error {
+	if cp.transport == ocpp.JSON {
+		if cp.conn == nil {
+			return errors.New("no ws connection")
+		}
+		go handleWebsocket(cp.conn, cshandler)
+	}
+	if cp.transport == ocpp.SOAP {
+		go handleSoap(cshandler)
+	}
+	return nil
 }
 
 func handleWebsocket(conn *ws.Conn, cshandler CentralSystemMessageHandler) {
