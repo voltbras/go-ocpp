@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+
 	"github.com/eduhenke/go-ocpp/messages"
 )
 
@@ -28,8 +29,8 @@ type CallMessage struct {
 
 func NewCallMessage(id MessageID, action Action, payload map[string]interface{}) *CallMessage {
 	return &CallMessage{
-		id:               id,
-		Action: action,
+		id:      id,
+		Action:  action,
 		Payload: payload,
 	}
 }
@@ -106,7 +107,7 @@ func NewCallErrorMessage(id MessageID, errorCode ErrorCode, errorDescription str
 		id:               id,
 		errorCode:        errorCode,
 		errorDescription: errorDescription,
-		errorDetails:     nil,
+		errorDetails:     make(map[string]interface{}),
 	}
 }
 

@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"context"
 
 	"github.com/eduhenke/go-ocpp"
 	"github.com/eduhenke/go-ocpp/cp"
@@ -20,7 +21,7 @@ func main() {
 		fmt.Println("could not create charge point:", err)
 		return
 	}
-	st.Run(nil, func(cprequest csreq.CentralSystemRequest) (csresp.CentralSystemResponse, error) {
+	st.Run(context.Background(), nil, func(cprequest csreq.CentralSystemRequest) (csresp.CentralSystemResponse, error) {
 		return nil, errors.New("not supported")
 	})
 	rawResp, err := st.Send(&cpreq.Heartbeat{})
