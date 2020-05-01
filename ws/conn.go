@@ -17,6 +17,11 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type CallResponse struct {
+	response messages.Response
+	err      error
+}
+
 type Conn struct {
 	*websocket.Conn
 	sendMux      sync.Mutex
@@ -25,7 +30,7 @@ type Conn struct {
 		messages.Request
 		MessageID
 	}
-	responsesOf map[MessageID]chan messages.Response
+	responsesOf map[MessageID]chan CallResponse
 }
 
 func newConn(socket *websocket.Conn) *Conn {
@@ -36,7 +41,7 @@ func newConn(socket *websocket.Conn) *Conn {
 			messages.Request
 			MessageID
 		}, 0),
-		responsesOf: make(map[MessageID]chan messages.Response),
+		responsesOf: make(map[MessageID]chan CallResponse),
 	}
 }
 
@@ -158,7 +163,8 @@ func (c *Conn) ReadMessage() error {
 		var req messages.Request
 		req, wserr = c.callToRequest(m)
 		if wserr != Nil {
-			break
+			msg := NewCallErrorMessage(msg.ID(), wserr, "on handling message")
+			return c.sendMessage(msg)
 		}
 		c.requests <- struct {
 			messages.Request
@@ -167,16 +173,15 @@ func (c *Conn) ReadMessage() error {
 	case *CallResultMessage:
 		var resp messages.Response
 		resp, wserr = c.callResultToResponse(m)
-		if wserr != Nil {
-			break
+		c.responsesOf[m.ID()] <- CallResponse{
+			response: resp,
+			err:      wserr,
 		}
-		c.responsesOf[m.ID()] <- resp
 	case *CallErrorMessage:
-		wserr = FormationViolation
-	}
-	if wserr != Nil {
-		msg := NewCallErrorMessage(msg.ID(), wserr, "on handling message")
-		return c.sendMessage(msg)
+		c.responsesOf[m.ID()] <- CallResponse{
+			response: nil,
+			err:      m,
+		}
 	}
 	return nil
 }
@@ -248,13 +253,16 @@ func (c *Conn) SendRequest(request messages.Request) (messages.Response, error) 
 		return nil, err
 	}
 	c.sentMessages[id] = msg
-	c.responsesOf[id] = make(chan messages.Response)
+	c.responsesOf[id] = make(chan CallResponse)
 	err = c.sendMessage(msg)
 	if err != nil {
 		return nil, err
 	}
-	resp := <-c.responsesOf[id]
+	callResponse := <-c.responsesOf[id]
 	delete(c.sentMessages, id)
 	delete(c.responsesOf, id)
-	return resp, nil
+	if callResponse.err != Nil {
+		return nil, callResponse.err
+	}
+	return callResponse.response, nil
 }

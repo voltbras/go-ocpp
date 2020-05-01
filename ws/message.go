@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/eduhenke/go-ocpp/messages"
 )
@@ -95,11 +96,19 @@ const (
 	Nil ErrorCode = ""
 )
 
+func (code ErrorCode) Error() string {
+	return string(code)
+}
+
 type CallErrorMessage struct {
 	id               MessageID
 	errorCode        ErrorCode
 	errorDescription string
 	errorDetails     map[string]interface{}
+}
+
+func (err *CallErrorMessage) Error() string {
+	return fmt.Sprintf("[%s] %s: %s", err.errorCode, err.errorDescription, err.errorDetails)
 }
 
 func NewCallErrorMessage(id MessageID, errorCode ErrorCode, errorDescription string) *CallErrorMessage {
