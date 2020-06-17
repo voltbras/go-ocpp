@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"time"
 
+	"github.com/eduhenke/go-ocpp/cpstatus"
 	"github.com/eduhenke/go-ocpp/messages"
 	"github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
 )
@@ -112,13 +113,13 @@ type StatusNotification struct {
 	chargepointRequest
 	XMLName xml.Name `json:"-" xml:"urn://Ocpp/Cs/2012/06/ statusNotificationRequest"`
 
-	ConnectorId     int        `json:"connectorId" xml:"connectorId,omitempty"`
-	ErrorCode       string     `json:"errorCode" xml:"errorCode,omitempty"`
-	Info            string     `json:"info,omitempty" xml:"info,omitempty"`
-	Status          string     `json:"status" xml:"status,omitempty"`
-	Timestamp       *time.Time `json:"timestamp,omitempty" xml:"timestamp,omitempty"`
-	VendorErrorCode string     `json:"vendorErrorCode,omitempty" xml:"vendorErrorCode,omitempty"`
-	VendorId        string     `json:"vendorId,omitempty" xml:"vendorId,omitempty"`
+	ConnectorId     int                `json:"connectorId" xml:"connectorId,omitempty"`
+	ErrorCode       cpstatus.ErrorCode `json:"errorCode" xml:"errorCode,omitempty"`
+	Info            string             `json:"info,omitempty" xml:"info,omitempty"`
+	Status          string             `json:"status" xml:"status,omitempty"`
+	Timestamp       *time.Time         `json:"timestamp,omitempty" xml:"timestamp,omitempty"`
+	VendorErrorCode string             `json:"vendorErrorCode,omitempty" xml:"vendorErrorCode,omitempty"`
+	VendorId        string             `json:"vendorId,omitempty" xml:"vendorId,omitempty"`
 }
 
 // StopTransaction
