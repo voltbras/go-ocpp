@@ -2,6 +2,7 @@ package cs
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"strings"
@@ -47,6 +48,12 @@ func (csys *centralSystem) Run(port string, cphandler ChargePointMessageHandler)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if ws.IsWebSocketUpgrade(r) {
 			csys.handleWebsocket(w, r, cphandler)
+		} else if r.Method == http.MethodGet {
+			// it's not a SOAP request
+			// it's someone lurking around in this URL
+			// let's present something nice
+			body := fmt.Sprintf("<h1>OCPP Central System</h1><p>currently connected with %d OCPP-J stations, and more OCPP-S stations</p>", len(csys.conns))
+			w.Write([]byte(body))
 		} else {
 			csys.handleSoap(w, r, cphandler)
 		}
