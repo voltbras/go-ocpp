@@ -114,7 +114,11 @@ func (csys *centralSystem) handleSoap(w http.ResponseWriter, r *http.Request, cp
 
 func (csys *centralSystem) GetServiceOf(cpID string, version ocpp.Version, url string) (service.ChargePoint, error) {
 	if version == ocpp.V15 {
-		return service.NewChargePointSOAP(url, nil), nil
+		return service.NewChargePointSOAP(url, &soap.CallOptions{
+			ChargeBoxIdentity: cpID,
+			// TODO: insert IP address
+			// From: <url>,
+		}), nil
 	}
 	if version == ocpp.V16 {
 		conn := csys.conns[cpID]

@@ -26,7 +26,7 @@ type receivedHeader struct {
 	Action            string `xml:"Action"`
 	MessageID         string `xml:"MessageID"`
 	From              receivedFrom
-	ChargeBoxIdentity string `xml:"urn://Ocpp/Cs/2012/06/ chargeBoxIdentity"`
+	ChargeBoxIdentity string `xml:"chargeBoxIdentity"`
 }
 
 type receivedBody struct {
@@ -73,7 +73,7 @@ type toSendHeader struct {
 	Action            string `xml:"wsa5:Action"`
 	MessageID         string `xml:"wsa5:MessageID"`
 	From              toSendFrom
-	ChargeBoxIdentity string `xml:"urn://Ocpp/Cs/2012/06/ chargeBoxIdentity"`
+	ChargeBoxIdentity string `xml:"urn://Ocpp/Cp/2012/06/ chargeBoxIdentity"`
 }
 
 type toSendBody struct {

@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/eduhenke/go-ocpp"
 	"github.com/eduhenke/go-ocpp/internal/log"
 	"github.com/eduhenke/go-ocpp/internal/service"
+	"github.com/eduhenke/go-ocpp/messages"
 	"github.com/eduhenke/go-ocpp/messages/v1x/csreq"
 	"github.com/eduhenke/go-ocpp/messages/v1x/csresp"
 	"github.com/eduhenke/go-ocpp/soap"
@@ -65,7 +67,10 @@ func (cp *chargePoint) Run(ctx context.Context, port *string, cshandler CentralS
 		go handleWebsocket(ctx, cp.conn, cshandler)
 	}
 	if cp.transport == ocpp.SOAP {
-		go handleSoap(ctx, cshandler)
+		if port == nil {
+			return errors.New("port must be set when running a SOAP ChargePoint")
+		}
+		go handleSoap(ctx, *port, cshandler)
 	}
 	return nil
 }
@@ -102,17 +107,20 @@ func handleWebsocket(ctx context.Context, conn *ws.Conn, cshandler CentralSystem
 	}
 }
 
-func handleSoap(ctx context.Context, cshandler CentralSystemMessageHandler) {
-	panic("SOAP yet not supported in ChargePoint")
-	// log.Debug("New SOAP request")
-	// err := soap.Handle(w, r, func(request messages.Request, cpID string) (messages.Response, error) {
-	// 	req, ok := request.(cpreq.ChargePointRequest)
-	// 	if !ok {
-	// 		return nil, errors.New("request is not a cprequest")
-	// 	}
-	// 	return cshandler(req, cpID)
-	// })
-	// if err != nil {
-	// 	log.Error("Couldn't handle SOAP request: %w", err)
-	// }
+func handleSoap(ctx context.Context, port string, cshandler CentralSystemMessageHandler) error {
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		log.Debug("New SOAP request")
+
+		err := soap.Handle(w, r, func(request messages.Request, cpID string) (messages.Response, error) {
+			req, ok := request.(csreq.CentralSystemRequest)
+			if !ok {
+				return nil, errors.New("request is not a cprequest")
+			}
+			return cshandler(req)
+		})
+		if err != nil {
+			log.Error("Couldn't handle SOAP request: %w", err)
+		}
+	})
+	panic(http.ListenAndServe(port, nil))
 }
