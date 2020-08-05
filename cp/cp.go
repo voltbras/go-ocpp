@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/eduhenke/go-ocpp"
 	"github.com/eduhenke/go-ocpp/internal/log"
@@ -26,6 +27,10 @@ type ChargePoint interface {
 	Run(ctx context.Context, port *string, cphandler CentralSystemMessageHandler) error
 }
 
+const (
+	websocketConnectionRetryInterval = 5 * time.Second
+)
+
 type chargePoint struct {
 	service.CentralSystem
 	identity         string
@@ -36,27 +41,25 @@ type chargePoint struct {
 }
 
 func New(identity, csURL string, version ocpp.Version, transport ocpp.Transport) (*chargePoint, error) {
-	var csService service.CentralSystem
-	var conn *ws.Conn
-	if transport == ocpp.JSON {
-		var err error
-		conn, err = ws.Dial(identity, csURL, version)
-		if err != nil {
-			return nil, fmt.Errorf("could not dial to central system: %w", err)
-		}
-		csService = service.NewCentralSystemJSON(conn)
-	}
-	if transport == ocpp.SOAP {
-		csService = service.NewCentralSystemSOAP(csURL, &soap.CallOptions{ChargeBoxIdentity: identity})
-	}
-	return &chargePoint{
-		CentralSystem:    csService,
+	cp := &chargePoint{
 		identity:         identity,
 		centralSystemURL: csURL,
 		version:          version,
 		transport:        transport,
-		conn:             conn,
-	}, nil
+	}
+	var csService service.CentralSystem
+	if transport == ocpp.JSON {
+		err := cp.getNewWebsocketConnection()
+		if err != nil {
+			return nil, fmt.Errorf("could not dial to central system: %w", err)
+		}
+		csService = service.NewCentralSystemJSON(cp.conn)
+	}
+	if transport == ocpp.SOAP {
+		csService = service.NewCentralSystemSOAP(csURL, &soap.CallOptions{ChargeBoxIdentity: identity})
+	}
+	cp.CentralSystem = csService
+	return cp, nil
 }
 
 func (cp *chargePoint) Run(ctx context.Context, port *string, cshandler CentralSystemMessageHandler) error {
@@ -64,7 +67,7 @@ func (cp *chargePoint) Run(ctx context.Context, port *string, cshandler CentralS
 		if cp.conn == nil {
 			return errors.New("no ws connection")
 		}
-		go handleWebsocket(ctx, cp.conn, cshandler)
+		go cp.handleWebsocket(ctx, cshandler)
 	}
 	if cp.transport == ocpp.SOAP {
 		if port == nil {
@@ -75,31 +78,62 @@ func (cp *chargePoint) Run(ctx context.Context, port *string, cshandler CentralS
 	return nil
 }
 
-func handleWebsocket(ctx context.Context, conn *ws.Conn, cshandler CentralSystemMessageHandler) {
+func (cp *chargePoint) getNewWebsocketConnection() error {
+	conn, err := ws.Dial(cp.identity, cp.centralSystemURL, cp.version)
+	if err != nil {
+		return err
+	}
+	if cp.conn == nil {
+		cp.conn = conn
+	} else {
+		*cp.conn = *conn
+	}
+	return nil
+}
+
+func (cp *chargePoint) handleFailedWebsocketConnection() {
+	for {
+		err := cp.getNewWebsocketConnection()
+		if err != nil {
+			log.Error("On restarting connection with Central System: %w", err)
+			<-time.After(websocketConnectionRetryInterval)
+		} else {
+			break
+		}
+	}
+}
+func (cp *chargePoint) handleIncomingMessagesUntilConnectionFail() {
+	for {
+		err := cp.conn.ReadMessage()
+		if err != nil {
+			if !ws.IsNormalCloseError(err) {
+				log.Error("On receiving a message: %w", err)
+			}
+			_ = cp.conn.Close()
+			log.Debug("Closed connection of Central System")
+			break
+		}
+	}
+}
+
+func (cp *chargePoint) handleWebsocket(ctx context.Context, cshandler CentralSystemMessageHandler) {
 	go func() {
 		for {
-			err := conn.ReadMessage()
-			if err != nil {
-				if !ws.IsNormalCloseError(err) {
-					log.Error("On receiving a message: %w", err)
-				}
-				_ = conn.Close()
-				log.Debug("Closed connection of central system")
-				break
-			}
+			cp.handleIncomingMessagesUntilConnectionFail()
+			cp.handleFailedWebsocketConnection()
 		}
 	}()
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case req := <-conn.Requests():
+		case req := <-cp.conn.Requests():
 			cprequest, ok := req.Request.(csreq.CentralSystemRequest)
 			if !ok {
 				log.Error(csreq.ErrorNotCentralSystemRequest.Error())
 			}
 			cpresponse, err := cshandler(cprequest)
-			err = conn.SendResponse(req.MessageID, cpresponse, err)
+			err = cp.conn.SendResponse(req.MessageID, cpresponse, err)
 			if err != nil {
 				log.Error(err.Error())
 			}
