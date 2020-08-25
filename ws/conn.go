@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
+	"github.com/eduhenke/go-ocpp/internal"
 	"github.com/eduhenke/go-ocpp/internal/log"
 	"github.com/eduhenke/go-ocpp/messages"
 	"github.com/eduhenke/go-ocpp/messages/req"
@@ -268,11 +270,15 @@ func (c *Conn) SendRequest(request messages.Request) (messages.Response, error) 
 	if err != nil {
 		return nil, err
 	}
-	callResponse := <-c.responsesOf[id]
-	delete(c.sentMessages, id)
-	delete(c.responsesOf, id)
-	if callResponse.err != Nil {
-		return nil, callResponse.err
+	select {
+	case callResponse := <-c.responsesOf[id]:
+		delete(c.sentMessages, id)
+		delete(c.responsesOf, id)
+		if callResponse.err != Nil {
+			return nil, callResponse.err
+		}
+		return callResponse.response, nil
+	case <-time.After(internal.DefaultRequestTimeout):
+		return nil, fmt.Errorf("request timeout exceeded")
 	}
-	return callResponse.response, nil
 }

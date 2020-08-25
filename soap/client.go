@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/eduhenke/go-ocpp/internal"
 	"github.com/eduhenke/go-ocpp/internal/log"
 	"github.com/eduhenke/go-ocpp/messages"
 
@@ -87,7 +88,7 @@ func (s *Client) Call(soapAction string, request messages.Request, response mess
 		},
 	}
 
-	client := &http.Client{Transport: tr}
+	client := &http.Client{Transport: tr, Timeout: internal.DefaultRequestTimeout}
 	res, err := client.Do(req)
 	if err != nil {
 		return err
