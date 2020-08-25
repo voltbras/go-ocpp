@@ -20,6 +20,7 @@ import (
 // ChargePointMessageHandler handles the OCPP messages coming from the charger
 type ChargePointMessageHandler func(cprequest cpreq.ChargePointRequest, cpID string) (cpresp.ChargePointResponse, error)
 
+type ChargePointConnectionListener func(cpID string)
 type CentralSystem interface {
 	// Run the central system on the given port
 	// and handles each incoming ChargepointRequest
@@ -32,15 +33,22 @@ type CentralSystem interface {
 	// the link between the CentralSystem
 	// and Chargepoint is via Websocket
 	GetServiceOf(cpID string, version ocpp.Version, url string) (service.ChargePoint, error)
+
+	SetChargePointConnectionListener(ChargePointConnectionListener)
+	SetChargePointDisconnectionListener(ChargePointConnectionListener)
 }
 
 type centralSystem struct {
-	conns map[string]*ws.Conn
+	conns           map[string]*ws.Conn
+	connListener    ChargePointConnectionListener
+	disconnListener ChargePointConnectionListener
 }
 
 func New() CentralSystem {
 	return &centralSystem{
-		conns: make(map[string]*ws.Conn, 0),
+		conns:           make(map[string]*ws.Conn, 0),
+		connListener:    func(cpID string) {},
+		disconnListener: func(cpID string) {},
 	}
 }
 
@@ -77,6 +85,7 @@ func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 	}
 	csys.conns[cpID] = conn
 	log.Debug("Connected with %s", cpID)
+	csys.connListener(cpID)
 	go func() {
 		for {
 			err := conn.ReadMessage()
@@ -86,6 +95,7 @@ func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 				}
 				_ = conn.Close()
 				log.Debug("Closed connection of: %s", cpID)
+				csys.disconnListener(cpID)
 				delete(csys.conns, cpID)
 				break
 			}
@@ -135,4 +145,12 @@ func (csys *centralSystem) GetServiceOf(cpID string, version ocpp.Version, url s
 		return service.NewChargePointJSON(conn), nil
 	}
 	return nil, errors.New("charge point has no configured OCPP version(1.5/1.6)")
+}
+
+func (csys *centralSystem) SetChargePointConnectionListener(f ChargePointConnectionListener) {
+	csys.connListener = f
+}
+
+func (csys *centralSystem) SetChargePointDisconnectionListener(f ChargePointConnectionListener) {
+	csys.disconnListener = f
 }

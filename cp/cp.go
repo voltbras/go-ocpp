@@ -24,7 +24,8 @@ type ChargePoint interface {
 	service.CentralSystem
 	// Run the charge point on the given port
 	// and handles each incoming CentralSystemRequest
-	Run(ctx context.Context, port *string, cphandler CentralSystemMessageHandler) error
+	Run(port *string, cphandler CentralSystemMessageHandler) error
+	Identity() string
 }
 
 const (
@@ -38,14 +39,16 @@ type chargePoint struct {
 	version          ocpp.Version
 	transport        ocpp.Transport
 	conn             *ws.Conn
+	ctx              context.Context
 }
 
-func New(identity, csURL string, version ocpp.Version, transport ocpp.Transport) (*chargePoint, error) {
+func New(ctx context.Context, identity, csURL string, version ocpp.Version, transport ocpp.Transport) (*chargePoint, error) {
 	cp := &chargePoint{
 		identity:         identity,
 		centralSystemURL: csURL,
 		version:          version,
 		transport:        transport,
+		ctx:              ctx,
 	}
 	var csService service.CentralSystem
 	if transport == ocpp.JSON {
@@ -53,6 +56,7 @@ func New(identity, csURL string, version ocpp.Version, transport ocpp.Transport)
 		if err != nil {
 			return nil, fmt.Errorf("could not dial to central system: %w", err)
 		}
+		go cp.handleWebsocketConnection()
 		csService = service.NewCentralSystemJSON(cp.conn)
 	}
 	if transport == ocpp.SOAP {
@@ -62,18 +66,22 @@ func New(identity, csURL string, version ocpp.Version, transport ocpp.Transport)
 	return cp, nil
 }
 
-func (cp *chargePoint) Run(ctx context.Context, port *string, cshandler CentralSystemMessageHandler) error {
+func (cp *chargePoint) Identity() string {
+	return cp.identity
+}
+
+func (cp *chargePoint) Run(port *string, cshandler CentralSystemMessageHandler) error {
 	if cp.transport == ocpp.JSON {
 		if cp.conn == nil {
 			return errors.New("no ws connection")
 		}
-		go cp.handleWebsocket(ctx, cshandler)
+		go cp.handleWebsocket(cshandler)
 	}
 	if cp.transport == ocpp.SOAP {
 		if port == nil {
 			return errors.New("port must be set when running a SOAP ChargePoint")
 		}
-		go handleSoap(ctx, *port, cshandler)
+		return handleSoap(cp.ctx, *port, cshandler)
 	}
 	return nil
 }
@@ -102,30 +110,29 @@ func (cp *chargePoint) handleFailedWebsocketConnection() {
 		}
 	}
 }
-func (cp *chargePoint) handleIncomingMessagesUntilConnectionFail() {
-	for {
-		err := cp.conn.ReadMessage()
-		if err != nil {
-			if !ws.IsNormalCloseError(err) {
-				log.Error("On receiving a message: %w", err)
-			}
-			_ = cp.conn.Close()
-			log.Debug("Closed connection of Central System")
-			break
-		}
-	}
-}
-
-func (cp *chargePoint) handleWebsocket(ctx context.Context, cshandler CentralSystemMessageHandler) {
+func (cp *chargePoint) handleIncomingMessagesUntilConnectionFail() <-chan struct{} {
+	connectionFailCh := make(chan struct{})
 	go func() {
 		for {
-			cp.handleIncomingMessagesUntilConnectionFail()
-			cp.handleFailedWebsocketConnection()
+			err := cp.conn.ReadMessage()
+			if err != nil {
+				if !ws.IsNormalCloseError(err) {
+					log.Error("On receiving a message: %w", err)
+				}
+				_ = cp.conn.Close()
+				log.Debug("Closed connection of Central System")
+				connectionFailCh <- struct{}{}
+				break
+			}
 		}
 	}()
+	return connectionFailCh
+}
+
+func (cp *chargePoint) handleWebsocket(cshandler CentralSystemMessageHandler) {
 	for {
 		select {
-		case <-ctx.Done():
+		case <-cp.ctx.Done():
 			return
 		case req := <-cp.conn.Requests():
 			cprequest, ok := req.Request.(csreq.CentralSystemRequest)
@@ -141,20 +148,48 @@ func (cp *chargePoint) handleWebsocket(ctx context.Context, cshandler CentralSys
 	}
 }
 
-func handleSoap(ctx context.Context, port string, cshandler CentralSystemMessageHandler) error {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		log.Debug("New SOAP request")
-
-		err := soap.Handle(w, r, func(request messages.Request, cpID string) (messages.Response, error) {
-			req, ok := request.(csreq.CentralSystemRequest)
-			if !ok {
-				return nil, errors.New("request is not a cprequest")
-			}
-			return cshandler(req)
-		})
-		if err != nil {
-			log.Error("Couldn't handle SOAP request: %w", err)
+func (cp *chargePoint) handleWebsocketConnection() {
+	connFailed := cp.handleIncomingMessagesUntilConnectionFail()
+	for {
+		select {
+		case <-cp.ctx.Done():
+			cp.conn.Close()
+			return
+		case <-connFailed:
+			cp.handleFailedWebsocketConnection()
 		}
+	}
+}
+
+func handleSoap(ctx context.Context, port string, cshandler CentralSystemMessageHandler) error {
+	handler := soapHandler{cshandler}
+	server := &http.Server{Addr: port, Handler: handler}
+
+	serverErrorCh := make(chan error)
+	go func() {
+		serverErrorCh <- server.ListenAndServe()
+	}()
+	select {
+	case <-ctx.Done():
+		return nil
+	case err := <-serverErrorCh:
+		return err
+	}
+}
+
+type soapHandler struct{ cshandler CentralSystemMessageHandler }
+
+func (s soapHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	log.Debug("New SOAP request")
+
+	err := soap.Handle(w, r, func(request messages.Request, cpID string) (messages.Response, error) {
+		req, ok := request.(csreq.CentralSystemRequest)
+		if !ok {
+			return nil, errors.New("request is not a cprequest")
+		}
+		return s.cshandler(req)
 	})
-	panic(http.ListenAndServe(port, nil))
+	if err != nil {
+		log.Error("Couldn't handle SOAP request: %w", err)
+	}
 }
