@@ -90,7 +90,7 @@ func (b *receivedBody) UnmarshalXML(d *xml.Decoder, start xml.StartElement) erro
 			// requests coming from the central system
 			case "unlockConnectorRequest":
 				msg = new(csreq.UnlockConnector)
-			case "eesetRequest":
+			case "resetRequest":
 				msg = new(csreq.Reset)
 			case "changeAvailabilityRequest":
 				msg = new(csreq.ChangeAvailability)
@@ -122,7 +122,7 @@ func (b *receivedBody) UnmarshalXML(d *xml.Decoder, start xml.StartElement) erro
 			// responses coming from the charger
 			case "unlockConnectorResponse":
 				msg = new(csresp.UnlockConnector)
-			case "eesetResponse":
+			case "resetResponse":
 				msg = new(csresp.Reset)
 			case "changeAvailabilityResponse":
 				msg = new(csresp.ChangeAvailability)
