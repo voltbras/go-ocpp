@@ -33,7 +33,12 @@ func Test_Connection(t *testing.T) {
 		t.Log("cpoint disconnected: ", cpID)
 		cpointDisconnected <- cpID
 	})
+
 	go csys.Run(csysPort, func(req cpreq.ChargePointRequest, cpID string) (cpresp.ChargePointResponse, error) {
+		switch req.(type) {
+		case *cpreq.Heartbeat:
+			return &cpresp.Heartbeat{}, nil
+		}
 		return nil, errors.New("not supported")
 	})
 
@@ -154,6 +159,9 @@ func testConnectionDisconnection(t *testing.T, cpID, csysURL string, cpointConne
 		t.Log("correct charge point did not connect")
 		cpointConnected <- connectedCpID
 	}
+
+	_, err = cpoint.Send(&cpreq.Heartbeat{})
+	assert.NoError(t, err)
 
 	done := make(chan struct{})
 	go func() {

@@ -166,6 +166,14 @@ func UnmarshalMessage(msg []byte) (Message, error) {
 	return nil, nil
 }
 
+func (c *Conn) ReadMessageAsync() <-chan error {
+	readMessageResultChannel := make(chan error)
+	go func() {
+		readMessageResultChannel <- c.ReadMessage()
+	}()
+	return readMessageResultChannel
+}
+
 func (c *Conn) ReadMessage() error {
 	_, messageBytes, err := c.Conn.ReadMessage()
 	if err != nil {

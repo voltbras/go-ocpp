@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/eduhenke/go-ocpp/internal/log"
+	"github.com/eduhenke/go-ocpp/internal/service"
 	"github.com/eduhenke/go-ocpp/messages/v1x/csreq"
 	"github.com/eduhenke/go-ocpp/ws"
 )
@@ -23,17 +24,21 @@ func (cp *chargePoint) getNewWebsocketConnection() error {
 		return err
 	}
 	cp.conn = conn
-
+	cp.CentralSystem = service.NewCentralSystemJSON(cp.conn)
 	for _, connectedCallback := range cp.connListeners {
 		go connectedCallback()
 	}
 	// read messages until connection is closed
 	go func() {
 		for {
-			err := cp.conn.ReadMessage()
-			if err != nil {
-				cp.conn.Close()
-				break
+			select {
+			case <-cp.ctx.Done():
+				return
+			case err := <-cp.conn.ReadMessageAsync():
+				if err != nil {
+					cp.conn.Close()
+					return
+				}
 			}
 		}
 	}()

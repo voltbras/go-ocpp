@@ -49,19 +49,16 @@ func New(ctx context.Context, identity, csURL string, version ocpp.Version, tran
 		ctx:              ctx,
 		connListeners:    []func(){},
 	}
-	var csService service.CentralSystem
 	if transport == ocpp.JSON {
 		err := cp.getNewWebsocketConnection()
 		if err != nil {
 			return nil, fmt.Errorf("could not dial to central system: %w", err)
 		}
 		go cp.handleWebsocketConnection()
-		csService = service.NewCentralSystemJSON(cp.conn)
 	}
 	if transport == ocpp.SOAP {
-		csService = service.NewCentralSystemSOAP(csURL, &soap.CallOptions{ChargeBoxIdentity: identity})
+		cp.CentralSystem = service.NewCentralSystemSOAP(csURL, &soap.CallOptions{ChargeBoxIdentity: identity})
 	}
-	cp.CentralSystem = csService
 	return cp, nil
 }
 

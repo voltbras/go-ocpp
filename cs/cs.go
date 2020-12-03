@@ -105,17 +105,16 @@ func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 			}
 			break
 		case <-conn.WaitClose():
+			log.Debug("Closed connection of: %s", cpID)
+			go csys.disconnListener(cpID)
+			delete(csys.conns, cpID)
 			return
-		default:
-			err := conn.ReadMessage()
+		case err := <-conn.ReadMessageAsync():
 			if err != nil {
 				if !ws.IsCloseError(err) {
 					continue
 				}
 				conn.Close()
-				log.Debug("Closed connection of: %s", cpID)
-				csys.disconnListener(cpID)
-				delete(csys.conns, cpID)
 				break
 			}
 		}
