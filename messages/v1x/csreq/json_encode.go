@@ -666,24 +666,11 @@ func (m *GetCompositeSchedule) UnmarshalJSON(b []byte) error {
 }
 
 func (m *GetConfiguration) MarshalJSON() ([]byte, error) {
-	buf := bytes.NewBuffer(make([]byte, 0))
-	buf.WriteString("{")
-	comma := false
-	// Marshal the "key" field
-	if comma {
-		buf.WriteString(",")
+	obj := map[string]interface{}{}
+	if m.Key != nil {
+		obj["key"] = m.Key
 	}
-	buf.WriteString("\"key\": ")
-	if tmp, err := json.Marshal(m.Key); err != nil {
-		return nil, err
-	} else {
-		buf.Write(tmp)
-	}
-	comma = true
-
-	buf.WriteString("}")
-	rv := buf.Bytes()
-	return rv, nil
+	return json.Marshal(obj)
 }
 
 func (m *GetConfiguration) UnmarshalJSON(b []byte) error {
