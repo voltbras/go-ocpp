@@ -60,7 +60,12 @@ func (csys *centralSystem) Run(port string, cphandler ChargePointMessageHandler)
 			// it's not a SOAP request
 			// it's someone lurking around in this URL
 			// let's present something nice
-			body := fmt.Sprintf("<h1>OCPP Central System</h1><p>currently connected with %d OCPP-J stations, and more OCPP-S stations</p>", len(csys.conns))
+			body := fmt.Sprintf(
+				`<h1>OCPP Central System</h1>
+				<p>currently connected with %d OCPP-J stations, and more OCPP-S stations</p>
+				<i>Central System using <a href="https://github.com/voltbras/go-ocpp"/>https://github.com/voltbras/go-ocpp</i>`,
+				len(csys.conns),
+			)
 			w.Write([]byte(body))
 		} else {
 			csys.handleSoap(w, r, cphandler)
