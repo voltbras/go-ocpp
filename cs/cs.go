@@ -90,32 +90,34 @@ func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 	}
 	csys.conns[cpID] = conn
 	log.Debug("Connected with %s", cpID)
-	csys.connListener(cpID)
-	go func() {
-		for {
+	go csys.connListener(cpID)
+	for {
+		select {
+		case req := <-conn.Requests():
+			cprequest, ok := req.Request.(cpreq.ChargePointRequest)
+			if !ok {
+				log.Error(cpreq.ErrorNotChargePointRequest.Error())
+			}
+			cpresponse, err := cphandler(cprequest, cpID)
+			err = conn.SendResponse(req.MessageID, cpresponse, err)
+			if err != nil {
+				log.Error(err.Error())
+			}
+			break
+		case <-conn.WaitClose():
+			return
+		default:
 			err := conn.ReadMessage()
 			if err != nil {
-				if !ws.IsNormalCloseError(err) {
-					log.Error("On receiving a message: %w", err)
+				if !ws.IsCloseError(err) {
+					continue
 				}
-				_ = conn.Close()
+				conn.Close()
 				log.Debug("Closed connection of: %s", cpID)
 				csys.disconnListener(cpID)
 				delete(csys.conns, cpID)
 				break
 			}
-		}
-	}()
-	for {
-		req := <-conn.Requests()
-		cprequest, ok := req.Request.(cpreq.ChargePointRequest)
-		if !ok {
-			log.Error(cpreq.ErrorNotChargePointRequest.Error())
-		}
-		cpresponse, err := cphandler(cprequest, cpID)
-		err = conn.SendResponse(req.MessageID, cpresponse, err)
-		if err != nil {
-			log.Error(err.Error())
 		}
 	}
 }

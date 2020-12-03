@@ -10,6 +10,6 @@ func IsWebSocketUpgrade(r *http.Request) bool {
 	return websocket.IsWebSocketUpgrade(r)
 }
 
-func IsNormalCloseError(err error) bool {
-	return websocket.IsCloseError(err, websocket.CloseNormalClosure)
+func IsCloseError(err error) bool {
+	return websocket.IsUnexpectedCloseError(err)
 }

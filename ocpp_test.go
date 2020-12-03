@@ -15,6 +15,8 @@ import (
 	"github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
 	"github.com/eduhenke/go-ocpp/messages/v1x/csreq"
 	"github.com/eduhenke/go-ocpp/messages/v1x/csresp"
+	"github.com/gorilla/websocket"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_Connection(t *testing.T) {
@@ -39,14 +41,14 @@ func Test_Connection(t *testing.T) {
 	t.Run("one chargepoint", func(t *testing.T) {
 		cpID := "123"
 		t.Run("single time", func(t *testing.T) {
-			disconnect := testConnectionDisconnection(t, cpID, csysURL, cpointConnected, cpointDisconnected)
+			_, disconnect := testConnectionDisconnection(t, cpID, csysURL, cpointConnected, cpointDisconnected)
 			disconnect()
 		})
 
 		t.Run("multiple times", func(t *testing.T) {
 			attempts := 100
 			for i := 0; i <= attempts; i++ {
-				disconnect := testConnectionDisconnection(t, cpID, csysURL, cpointConnected, cpointDisconnected)
+				_, disconnect := testConnectionDisconnection(t, cpID, csysURL, cpointConnected, cpointDisconnected)
 				disconnect()
 			}
 		})
@@ -58,9 +60,9 @@ func Test_Connection(t *testing.T) {
 			b := "chargerB"
 			c := "chargerC"
 
-			disconnectA := testConnectionDisconnection(t, a, csysURL, cpointConnected, cpointDisconnected)
-			disconnectB := testConnectionDisconnection(t, b, csysURL, cpointConnected, cpointDisconnected)
-			disconnectC := testConnectionDisconnection(t, c, csysURL, cpointConnected, cpointDisconnected)
+			_, disconnectA := testConnectionDisconnection(t, a, csysURL, cpointConnected, cpointDisconnected)
+			_, disconnectB := testConnectionDisconnection(t, b, csysURL, cpointConnected, cpointDisconnected)
+			_, disconnectC := testConnectionDisconnection(t, c, csysURL, cpointConnected, cpointDisconnected)
 
 			disconnectB()
 			disconnectA()
@@ -77,7 +79,7 @@ func Test_Connection(t *testing.T) {
 			// creating and connecting chargers
 			for i := 0; i < chargerPoolSize; i++ {
 				cpID := strconv.Itoa(i)
-				disconnect := testConnectionDisconnection(t, cpID, csysURL, cpointConnected, cpointDisconnected)
+				_, disconnect := testConnectionDisconnection(t, cpID, csysURL, cpointConnected, cpointDisconnected)
 				chargerPool[i] = struct {
 					id         string
 					disconnect func()
@@ -96,9 +98,43 @@ func Test_Connection(t *testing.T) {
 			}
 		})
 	})
+
+	t.Run("anomalous connection", func(t *testing.T) {
+		cpoint, _ := testConnectionDisconnection(t, "123", csysURL, cpointConnected, cpointDisconnected)
+		shouldSendCommandToChargePoint := func() {
+			svc, err := csys.GetServiceOf("123", ocpp.V16, "")
+			assert.NoError(t, err)
+			_, err = svc.Send(&csreq.GetConfiguration{})
+			assert.NoError(t, err)
+		}
+		shouldNotSendCommandToChargePoint := func() {
+			svc, err := csys.GetServiceOf("123", ocpp.V16, "")
+			if svc == nil {
+				assert.Error(t, err)
+				return
+			}
+			_, err = svc.Send(&csreq.GetConfiguration{})
+			assert.Error(t, err)
+		}
+		shouldSendCommandToChargePoint()
+		// shouldn't close on invalid message
+		err := cpoint.Connection().WriteMessage(websocket.TextMessage, []byte("[123"))
+		assert.NoError(t, err)
+
+		shouldSendCommandToChargePoint()
+
+		waitDisconnection := cpoint.WaitDisconnect()
+		cpoint.Connection().Close()
+		<-waitDisconnection
+
+		shouldNotSendCommandToChargePoint()
+
+		<-cpoint.WaitConnect()
+		shouldSendCommandToChargePoint()
+	})
 }
 
-func testConnectionDisconnection(t *testing.T, cpID, csysURL string, cpointConnected, cpointDisconnected chan string) (disconnect func()) {
+func testConnectionDisconnection(t *testing.T, cpID, csysURL string, cpointConnected, cpointDisconnected chan string) (cpoint cp.ChargePoint, disconnect func()) {
 	cpctx, killCp := context.WithCancel(context.Background())
 	cpoint, err := cp.New(cpctx, cpID, csysURL, ocpp.V16, ocpp.JSON)
 	if err != nil {
@@ -106,6 +142,10 @@ func testConnectionDisconnection(t *testing.T, cpID, csysURL string, cpointConne
 	}
 
 	go cpoint.Run(nil, func(req csreq.CentralSystemRequest) (csresp.CentralSystemResponse, error) {
+		switch req.(type) {
+		case *csreq.GetConfiguration:
+			return &csresp.GetConfiguration{}, nil
+		}
 		return nil, errors.New("not supported")
 	})
 
@@ -129,7 +169,7 @@ func testConnectionDisconnection(t *testing.T, cpID, csysURL string, cpointConne
 		}
 	}()
 
-	return func() {
+	return cpoint, func() {
 		killCp()
 		<-done
 	}
