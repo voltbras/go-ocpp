@@ -60,7 +60,12 @@ func (csys *centralSystem) Run(port string, cphandler ChargePointMessageHandler)
 			// it's not a SOAP request
 			// it's someone lurking around in this URL
 			// let's present something nice
-			body := fmt.Sprintf("<h1>OCPP Central System</h1><p>currently connected with %d OCPP-J stations, and more OCPP-S stations</p>", len(csys.conns))
+			body := fmt.Sprintf(
+				`<h1>OCPP Central System</h1>
+				<p>currently connected with %d OCPP-J stations, and more OCPP-S stations</p>
+				<i>Central System using <a href="https://github.com/voltbras/go-ocpp"/>https://github.com/voltbras/go-ocpp</i>`,
+				len(csys.conns),
+			)
 			w.Write([]byte(body))
 		} else {
 			csys.handleSoap(w, r, cphandler)
@@ -85,32 +90,33 @@ func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 	}
 	csys.conns[cpID] = conn
 	log.Debug("Connected with %s", cpID)
-	csys.connListener(cpID)
-	go func() {
-		for {
-			err := conn.ReadMessage()
+	go csys.connListener(cpID)
+	for {
+		select {
+		case req := <-conn.Requests():
+			cprequest, ok := req.Request.(cpreq.ChargePointRequest)
+			if !ok {
+				log.Error(cpreq.ErrorNotChargePointRequest.Error())
+			}
+			cpresponse, err := cphandler(cprequest, cpID)
+			err = conn.SendResponse(req.MessageID, cpresponse, err)
 			if err != nil {
-				if !ws.IsNormalCloseError(err) {
-					log.Error("On receiving a message: %w", err)
+				log.Error(err.Error())
+			}
+			break
+		case <-conn.WaitClose():
+			log.Debug("Closed connection of: %s", cpID)
+			go csys.disconnListener(cpID)
+			delete(csys.conns, cpID)
+			return
+		case err := <-conn.ReadMessageAsync():
+			if err != nil {
+				if !ws.IsCloseError(err) {
+					continue
 				}
-				_ = conn.Close()
-				log.Debug("Closed connection of: %s", cpID)
-				csys.disconnListener(cpID)
-				delete(csys.conns, cpID)
+				conn.Close()
 				break
 			}
-		}
-	}()
-	for {
-		req := <-conn.Requests()
-		cprequest, ok := req.Request.(cpreq.ChargePointRequest)
-		if !ok {
-			log.Error(cpreq.ErrorNotChargePointRequest.Error())
-		}
-		cpresponse, err := cphandler(cprequest, cpID)
-		err = conn.SendResponse(req.MessageID, cpresponse, err)
-		if err != nil {
-			log.Error(err.Error())
 		}
 	}
 }

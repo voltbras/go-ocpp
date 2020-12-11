@@ -2,6 +2,7 @@ package ws
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -25,6 +26,8 @@ type CallResponse struct {
 }
 
 type Conn struct {
+	ctx       context.Context
+	cancelCtx context.CancelFunc
 	*websocket.Conn
 	sendMux      sync.Mutex
 	sentMessages map[MessageID]*CallMessage
@@ -36,6 +39,7 @@ type Conn struct {
 }
 
 func newConn(socket *websocket.Conn) *Conn {
+	ctx, cancel := context.WithCancel(context.Background())
 	return &Conn{
 		Conn:         socket,
 		sentMessages: make(map[MessageID]*CallMessage, 0),
@@ -43,6 +47,8 @@ func newConn(socket *websocket.Conn) *Conn {
 			messages.Request
 			MessageID
 		}, 0),
+		ctx:         ctx,
+		cancelCtx:   cancel,
 		responsesOf: make(map[MessageID]chan CallResponse),
 	}
 }
@@ -90,6 +96,18 @@ func (c *Conn) WriteJSON(data interface{}) error {
 	c.sendMux.Lock()
 	defer c.sendMux.Unlock()
 	return c.Conn.WriteJSON(data)
+}
+
+func (c *Conn) Close() error {
+	err := c.Conn.Close()
+	if err == nil {
+		c.cancelCtx()
+	}
+	return err
+}
+
+func (c *Conn) WaitClose() <-chan struct{} {
+	return c.ctx.Done()
 }
 
 var (
@@ -148,9 +166,20 @@ func UnmarshalMessage(msg []byte) (Message, error) {
 	return nil, nil
 }
 
+func (c *Conn) ReadMessageAsync() <-chan error {
+	readMessageResultChannel := make(chan error)
+	go func() {
+		readMessageResultChannel <- c.ReadMessage()
+	}()
+	return readMessageResultChannel
+}
+
 func (c *Conn) ReadMessage() error {
 	_, messageBytes, err := c.Conn.ReadMessage()
 	if err != nil {
+		if IsCloseError(err) {
+			c.Close()
+		}
 		return err
 	}
 	messageBytes = bytes.TrimSpace(bytes.Replace(messageBytes, newline, space, -1))
