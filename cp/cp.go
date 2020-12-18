@@ -46,7 +46,6 @@ func New(ctx context.Context, identity, csURL string, version ocpp.Version, tran
 		version:          version,
 		transport:        transport,
 		ctx:              ctx,
-		connListeners:    map[int]func(){},
 		connectedChan:    make(chan struct{}),
 	}
 	if transport == ocpp.JSON {
