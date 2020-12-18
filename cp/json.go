@@ -25,33 +25,31 @@ func (cp *chargePoint) getNewWebsocketConnection() error {
 	}
 	cp.conn = conn
 	cp.CentralSystem = service.NewCentralSystemJSON(cp.conn)
-	for _, connectedCallback := range cp.connListeners {
-		go connectedCallback()
-	}
-	// read messages until connection is closed
-	go func() {
-		for {
-			select {
-			case <-cp.ctx.Done():
-				return
-			case err := <-cp.conn.ReadMessageAsync():
-				if err != nil {
-					cp.conn.Close()
-					return
-				}
-			}
-		}
-	}()
+	// closing the channel will make the reads non blocking
+	close(cp.connectedChan)
 	return nil
 }
 
-func (cp *chargePoint) handleWebsocketRequests(cshandler CentralSystemMessageHandler) {
+func (cp *chargePoint) handleWebsocketConnection(cshandler CentralSystemMessageHandler) {
 	for {
 		select {
 		case <-cp.ctx.Done():
+			cp.conn.Close()
 			return
 		case <-cp.conn.WaitClose():
-			// if connection closed wait until new one is opened
+			log.Debug("Closed connection of Central System")
+			cp.connectedChan = make(chan struct{})
+			// try to connect until it is established
+			for {
+				err := cp.getNewWebsocketConnection()
+				if err != nil {
+					log.Error("On restarting connection with Central System: %w", err)
+					<-time.After(websocketConnectionRetryInterval)
+				} else {
+					break
+				}
+			}
+		case <-cp.conn.ReadMessageAsync():
 			continue
 		case req := <-cp.conn.Requests():
 			cprequest, ok := req.Request.(csreq.CentralSystemRequest)
@@ -67,34 +65,8 @@ func (cp *chargePoint) handleWebsocketRequests(cshandler CentralSystemMessageHan
 	}
 }
 
-func (cp *chargePoint) handleWebsocketConnection() {
-	for {
-		select {
-		case <-cp.ctx.Done():
-			cp.conn.Close()
-			return
-		case <-cp.conn.WaitClose():
-			log.Debug("Closed connection of Central System")
-			// try to connect until it is established
-			for {
-				err := cp.getNewWebsocketConnection()
-				if err != nil {
-					log.Error("On restarting connection with Central System: %w", err)
-					<-time.After(websocketConnectionRetryInterval)
-				} else {
-					break
-				}
-			}
-		}
-	}
-}
-
 func (cp *chargePoint) WaitConnect() <-chan struct{} {
-	waitConn := make(chan struct{})
-	cp.connListeners = append(cp.connListeners, func() {
-		waitConn <- struct{}{}
-	})
-	return waitConn
+	return cp.connectedChan
 }
 
 func (cp *chargePoint) WaitDisconnect() <-chan struct{} {

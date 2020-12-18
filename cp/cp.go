@@ -18,9 +18,6 @@ type CentralSystemMessageHandler func(cprequest csreq.CentralSystemRequest) (csr
 
 type ChargePoint interface {
 	service.CentralSystem
-	// Run the charge point on the given port
-	// and handles each incoming CentralSystemRequest
-	Run(port *string, cphandler CentralSystemMessageHandler) error
 	Identity() string
 
 	// WS related
@@ -37,47 +34,38 @@ type chargePoint struct {
 	transport        ocpp.Transport
 	conn             *ws.Conn
 	ctx              context.Context
-	connListeners    []func()
+	connectedChan    chan struct{}
 }
 
-func New(ctx context.Context, identity, csURL string, version ocpp.Version, transport ocpp.Transport) (*chargePoint, error) {
+// Run the charge point on the given port
+// and handles each incoming CentralSystemRequest
+func New(ctx context.Context, identity, csURL string, version ocpp.Version, transport ocpp.Transport, port *string, cshandler CentralSystemMessageHandler) (*chargePoint, error) {
 	cp := &chargePoint{
 		identity:         identity,
 		centralSystemURL: csURL,
 		version:          version,
 		transport:        transport,
 		ctx:              ctx,
-		connListeners:    []func(){},
+		connListeners:    map[int]func(){},
+		connectedChan:    make(chan struct{}),
 	}
 	if transport == ocpp.JSON {
 		err := cp.getNewWebsocketConnection()
 		if err != nil {
 			return nil, fmt.Errorf("could not dial to central system: %w", err)
 		}
-		go cp.handleWebsocketConnection()
+		go cp.handleWebsocketConnection(cshandler)
 	}
 	if transport == ocpp.SOAP {
 		cp.CentralSystem = service.NewCentralSystemSOAP(csURL, &soap.CallOptions{ChargeBoxIdentity: identity})
+		if port == nil {
+			return nil, errors.New("port must be set when running a SOAP ChargePoint")
+		}
+		go handleSoap(cp.ctx, *port, cshandler)
 	}
 	return cp, nil
 }
 
 func (cp *chargePoint) Identity() string {
 	return cp.identity
-}
-
-func (cp *chargePoint) Run(port *string, cshandler CentralSystemMessageHandler) error {
-	if cp.transport == ocpp.JSON {
-		if cp.conn == nil {
-			return errors.New("no ws connection")
-		}
-		go cp.handleWebsocketRequests(cshandler)
-	}
-	if cp.transport == ocpp.SOAP {
-		if port == nil {
-			return errors.New("port must be set when running a SOAP ChargePoint")
-		}
-		return handleSoap(cp.ctx, *port, cshandler)
-	}
-	return nil
 }
