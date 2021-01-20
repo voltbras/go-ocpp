@@ -17,12 +17,18 @@ In Websockets, error messages will be sent back as specified in OCPP-J v1.6
 
 ```go
 csys := cs.New()
-go csys.Run(":12811", func(req cpreq.ChargePointRequest, cpID string) (cpresp.ChargePointResponse, error) {
+go csys.Run(":12811", func(req cpreq.ChargePointRequest, metadata cs.ChargePointRequestMetadata) (cpresp.ChargePointResponse, error) {
     // Return an error to the Station communicating to the Central System
     //
-    // station, isAuthorized := getStation(cpID)
-    // if err != nil {
+    // station, isAuthorized := getStation(metadata.ChargePointID)
+    // if !isAuthorized {
     //   return nil, errors.New("charger not authorized to join network")
+    // }
+    // ---
+    // Or check some specific header in the underlying HTTP request:
+    // 
+    // if shouldBlock(metadata.HTTPRequest) {
+    //   return nil, errors.New("charger should send appropriate headers")
     // }
 
     switch req := req.(type) {
