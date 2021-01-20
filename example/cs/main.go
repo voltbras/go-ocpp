@@ -17,8 +17,8 @@ func main() {
 	ocpp.SetDebugLogger(log.New(os.Stdout, "DEBUG:", log.Ltime))
 	ocpp.SetErrorLogger(log.New(os.Stderr, "ERROR:", log.Ltime))
 	csys := cs.New()
-	go csys.Run(":12811", func(req cpreq.ChargePointRequest, cpID string) (cpresp.ChargePointResponse, error) {
-		fmt.Printf("EXAMPLE(MAIN): Request from %s\n", cpID)
+	go csys.Run(":12811", func(req cpreq.ChargePointRequest, metadata cs.ChargePointRequestMetadata) (cpresp.ChargePointResponse, error) {
+		fmt.Printf("EXAMPLE(MAIN): Request from %s\n", metadata.ChargePointID)
 		switch req := req.(type) {
 		case *cpreq.BootNotification:
 			return &cpresp.BootNotification{

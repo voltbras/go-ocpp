@@ -17,8 +17,13 @@ import (
 	"github.com/eduhenke/go-ocpp/ws"
 )
 
+type ChargePointRequestMetadata struct {
+	ChargePointID string
+	HTTPRequest   *http.Request
+}
+
 // ChargePointMessageHandler handles the OCPP messages coming from the charger
-type ChargePointMessageHandler func(cprequest cpreq.ChargePointRequest, cpID string) (cpresp.ChargePointResponse, error)
+type ChargePointMessageHandler func(cprequest cpreq.ChargePointRequest, metadata ChargePointRequestMetadata) (cpresp.ChargePointResponse, error)
 
 type ChargePointConnectionListener func(cpID string)
 type CentralSystem interface {
@@ -97,8 +102,12 @@ func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 			cprequest, ok := req.Request.(cpreq.ChargePointRequest)
 			if !ok {
 				log.Error(cpreq.ErrorNotChargePointRequest.Error())
+				continue
 			}
-			cpresponse, err := cphandler(cprequest, cpID)
+			cpresponse, err := cphandler(cprequest, ChargePointRequestMetadata{
+				ChargePointID: cpID,
+				HTTPRequest:   r,
+			})
 			err = conn.SendResponse(req.MessageID, cpresponse, err)
 			if err != nil {
 				log.Error(err.Error())
@@ -128,7 +137,10 @@ func (csys *centralSystem) handleSoap(w http.ResponseWriter, r *http.Request, cp
 		if !ok {
 			return nil, errors.New("request is not a cprequest")
 		}
-		return cphandler(req, cpID)
+		return cphandler(req, ChargePointRequestMetadata{
+			ChargePointID: cpID,
+			HTTPRequest:   r,
+		})
 	})
 	if err != nil {
 		log.Error("Couldn't handle SOAP request: %w", err)
