@@ -100,9 +100,7 @@ func (c *Conn) WriteJSON(data interface{}) error {
 
 func (c *Conn) Close() error {
 	err := c.Conn.Close()
-	if err == nil {
-		c.cancelCtx()
-	}
+	c.cancelCtx()
 	return err
 }
 
@@ -177,9 +175,7 @@ func (c *Conn) ReadMessageAsync() <-chan error {
 func (c *Conn) ReadMessage() error {
 	_, messageBytes, err := c.Conn.ReadMessage()
 	if err != nil {
-		if IsCloseError(err) {
-			c.Close()
-		}
+		c.Close()
 		return err
 	}
 	messageBytes = bytes.TrimSpace(bytes.Replace(messageBytes, newline, space, -1))
@@ -267,6 +263,9 @@ func (c *Conn) SendResponse(id MessageID, response messages.Response, err error)
 	return c.sendMessage(unmarshalResponse(id, response, err))
 }
 func (c *Conn) sendMessage(msg Message) error {
+	c.sendMux.Lock()
+	defer c.sendMux.Unlock()
+
 	bts, err := json.Marshal(msg)
 	if err != nil {
 		return fmt.Errorf("on marshalling message: %w", err)

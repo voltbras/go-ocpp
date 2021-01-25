@@ -26,11 +26,11 @@ func Test_Connection(t *testing.T) {
 	csysPort := ":5050"
 	csys := cs.New()
 	csys.SetChargePointConnectionListener(func(cpID string) {
-		t.Log("cpoint connected: ", cpID)
+		// t.Log("cpoint connected: ", cpID)
 		cpointConnected <- cpID
 	})
 	csys.SetChargePointDisconnectionListener(func(cpID string) {
-		t.Log("cpoint disconnected: ", cpID)
+		// t.Log("cpoint disconnected: ", cpID)
 		cpointDisconnected <- cpID
 	})
 
@@ -97,66 +97,81 @@ func Test_Connection(t *testing.T) {
 			rand.Shuffle(chargerPoolSize, func(i, j int) {
 				chargerPool[i], chargerPool[j] = chargerPool[j], chargerPool[i]
 			})
-			for i, charger := range chargerPool {
-				t.Log(i, charger.id)
+			for _, charger := range chargerPool {
+				// t.Log(i, charger.id)
 				charger.disconnect()
 			}
 		})
 	})
+	shouldSendCommandToChargePoint := func(cpID string) {
+		svc, err := csys.GetServiceOf(cpID, ocpp.V16, "")
+		assert.NoError(t, err)
+		_, err = svc.Send(&csreq.GetConfiguration{})
+		assert.NoError(t, err)
+	}
+	shouldNotSendCommandToChargePoint := func(cpID string) {
+		svc, err := csys.GetServiceOf(cpID, ocpp.V16, "")
+		if svc == nil {
+			assert.Error(t, err)
+			return
+		}
+		_, err = svc.Send(&csreq.GetConfiguration{})
+		assert.Error(t, err)
+	}
+	t.Run("double connect before disconnecting", func(t *testing.T) {
+		_, disconnectA := testConnectionDisconnection(t, "123", csysURL, cpointConnected, cpointDisconnected)
+		_, disconnectB := testConnectionDisconnection(t, "123", csysURL, cpointConnected, cpointDisconnected)
+		shouldSendCommandToChargePoint("123")
+		disconnectA()
+		shouldSendCommandToChargePoint("123")
+		disconnectB()
+		shouldNotSendCommandToChargePoint("123")
+	})
 
+	// this test is still not passing every time
+	// it seems that we have a data race somewhere
 	t.Run("anomalous connection", func(t *testing.T) {
 		cpoint, _ := testConnectionDisconnection(t, "123", csysURL, cpointConnected, cpointDisconnected)
-		shouldSendCommandToChargePoint := func() {
-			svc, err := csys.GetServiceOf("123", ocpp.V16, "")
-			assert.NoError(t, err)
-			_, err = svc.Send(&csreq.GetConfiguration{})
-			assert.NoError(t, err)
-		}
-		shouldNotSendCommandToChargePoint := func() {
-			svc, err := csys.GetServiceOf("123", ocpp.V16, "")
-			if svc == nil {
-				assert.Error(t, err)
-				return
-			}
-			_, err = svc.Send(&csreq.GetConfiguration{})
-			assert.Error(t, err)
-		}
-		shouldSendCommandToChargePoint()
+
+		shouldSendCommandToChargePoint("123")
 		// shouldn't close on invalid message
-		err := cpoint.Connection().WriteMessage(websocket.TextMessage, []byte("[123"))
+		err := cpoint.Connection().WriteMessage(websocket.TextMessage, []byte("[ab"))
 		assert.NoError(t, err)
 
-		shouldSendCommandToChargePoint()
+		shouldSendCommandToChargePoint("123")
 
-		waitDisconnection := cpoint.WaitDisconnect()
-		cpoint.Connection().Close()
-		<-waitDisconnection
+		for i := 0; i < 1000; i++ {
+			// BEGIN
+			cpoint.Connection().Close()
 
-		shouldNotSendCommandToChargePoint()
+			<-cpoint.WaitDisconnect()
+			<-csys.WaitDisconnect("123")
 
-		<-cpoint.WaitConnect()
-		shouldSendCommandToChargePoint()
+			shouldNotSendCommandToChargePoint("123")
+
+			<-cpoint.WaitConnect()
+			<-csys.WaitConnect("123")
+			shouldSendCommandToChargePoint("123")
+		}
 	})
 }
 
 func testConnectionDisconnection(t *testing.T, cpID, csysURL string, cpointConnected, cpointDisconnected chan string) (cpoint cp.ChargePoint, disconnect func()) {
 	cpctx, killCp := context.WithCancel(context.Background())
-	cpoint, err := cp.New(cpctx, cpID, csysURL, ocpp.V16, ocpp.JSON)
-	if err != nil {
-		t.Fatal(fmt.Errorf("chargepoint could not start: %w", err))
-	}
-
-	go cpoint.Run(nil, func(req csreq.CentralSystemRequest) (csresp.CentralSystemResponse, error) {
+	cpoint, err := cp.New(cpctx, cpID, csysURL, ocpp.V16, ocpp.JSON, nil, func(req csreq.CentralSystemRequest) (csresp.CentralSystemResponse, error) {
 		switch req.(type) {
 		case *csreq.GetConfiguration:
 			return &csresp.GetConfiguration{}, nil
 		}
 		return nil, errors.New("not supported")
 	})
+	if err != nil {
+		t.Fatal(fmt.Errorf("chargepoint could not start: %w", err))
+	}
 
 	connectedCpID := <-cpointConnected
 	if cpoint.Identity() != connectedCpID {
-		t.Log("correct charge point did not connect")
+		// t.Log("correct charge point did not connect")
 		cpointConnected <- connectedCpID
 	}
 
@@ -170,7 +185,7 @@ func testConnectionDisconnection(t *testing.T, cpID, csysURL string, cpointConne
 				// t.Logf("correct charge point did not disconnect. charge point expected (%s), charge point disconnected(%s)", cpoint.Identity(), disconnectedCpID)
 				cpointDisconnected <- disconnectedCpID
 			} else {
-				t.Log("correctly disconnected charge point: " + cpoint.Identity())
+				// t.Log("correctly disconnected charge point: " + cpoint.Identity())
 				done <- struct{}{}
 				return
 			}

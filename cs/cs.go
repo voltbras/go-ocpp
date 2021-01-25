@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"strings"
+	"sync"
 
 	"github.com/eduhenke/go-ocpp"
 	"github.com/eduhenke/go-ocpp/internal/log"
@@ -41,10 +42,17 @@ type CentralSystem interface {
 
 	SetChargePointConnectionListener(ChargePointConnectionListener)
 	SetChargePointDisconnectionListener(ChargePointConnectionListener)
+	WaitConnect(cpID string) <-chan struct{}
+	WaitDisconnect(cpID string) <-chan struct{}
 }
 
 type centralSystem struct {
-	conns           map[string]*ws.Conn
+	conns map[string]*ws.Conn
+	// used to symbolize if the connection is connected
+	connChans       map[string]chan struct{}
+	connsConnected  map[string]bool
+	connsCount      map[string]int
+	connMux         sync.Mutex
 	connListener    ChargePointConnectionListener
 	disconnListener ChargePointConnectionListener
 }
@@ -52,6 +60,9 @@ type centralSystem struct {
 func New() CentralSystem {
 	return &centralSystem{
 		conns:           make(map[string]*ws.Conn, 0),
+		connChans:       make(map[string]chan struct{}, 0),
+		connsCount:      make(map[string]int, 0),
+		connsConnected:  make(map[string]bool, 0),
 		connListener:    func(cpID string) {},
 		disconnListener: func(cpID string) {},
 	}
@@ -93,9 +104,38 @@ func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 		log.Error("Couldn't handshake request %w", err)
 		return
 	}
+
+	csys.connMux.Lock()
 	csys.conns[cpID] = conn
+	csys.connsCount[cpID]++
+	if csys.connChans[cpID] == nil {
+		csys.connChans[cpID] = make(chan struct{})
+	}
+	if !csys.connsConnected[cpID] {
+		close(csys.connChans[cpID])
+	}
+	csys.connsConnected[cpID] = true
+	csys.connMux.Unlock()
+
 	log.Debug("Connected with %s", cpID)
 	go csys.connListener(cpID)
+
+	defer func() {
+		conn.Close()
+		log.Debug("Closed connection of: %s", cpID)
+		go csys.disconnListener(cpID)
+		csys.connMux.Lock()
+		csys.connsCount[cpID]--
+		// if the same CP connected more times before we do the
+		// connection cleanup, don't remove the connection reference
+		if csys.connsCount[cpID] == 0 {
+			delete(csys.conns, cpID)
+			csys.connChans[cpID] = make(chan struct{})
+		}
+		csys.connsConnected[cpID] = false
+		csys.connMux.Unlock()
+	}()
+
 	for {
 		select {
 		case req := <-conn.Requests():
@@ -112,19 +152,14 @@ func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 			if err != nil {
 				log.Error(err.Error())
 			}
-			break
 		case <-conn.WaitClose():
-			log.Debug("Closed connection of: %s", cpID)
-			go csys.disconnListener(cpID)
-			delete(csys.conns, cpID)
 			return
 		case err := <-conn.ReadMessageAsync():
 			if err != nil {
 				if !ws.IsCloseError(err) {
 					continue
 				}
-				conn.Close()
-				break
+				return
 			}
 		}
 	}
@@ -156,7 +191,9 @@ func (csys *centralSystem) GetServiceOf(cpID string, version ocpp.Version, url s
 		}), nil
 	}
 	if version == ocpp.V16 {
+		csys.connMux.Lock()
 		conn := csys.conns[cpID]
+		csys.connMux.Unlock()
 		if conn == nil { // TODO: or conn closed
 			return nil, errors.New("no connection to this charge point")
 		}
@@ -171,4 +208,27 @@ func (csys *centralSystem) SetChargePointConnectionListener(f ChargePointConnect
 
 func (csys *centralSystem) SetChargePointDisconnectionListener(f ChargePointConnectionListener) {
 	csys.disconnListener = f
+}
+
+func (csys *centralSystem) WaitDisconnect(cpID string) <-chan struct{} {
+	csys.connMux.Lock()
+	conn := csys.conns[cpID]
+	csys.connMux.Unlock()
+
+	ch := make(chan struct{})
+	if conn == nil {
+		close(ch)
+		return ch
+	}
+	return conn.WaitClose()
+}
+
+func (csys *centralSystem) WaitConnect(cpID string) <-chan struct{} {
+	csys.connMux.Lock()
+	if csys.connChans[cpID] == nil {
+		csys.connChans[cpID] = make(chan struct{})
+	}
+	connCh := csys.connChans[cpID]
+	csys.connMux.Unlock()
+	return connCh
 }

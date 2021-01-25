@@ -64,7 +64,7 @@ TODO: assertion of the response type should be done inside the `.Send`?
 ```go
 stationID := "id01"
 centralSystemURL := "ws://localhost:12811"
-st, err := cp.NewChargePoint(stationID, centralSystemURL, ocpp.V16, ocpp.JSON) // or ocpp.SOAP
+st, err := cp.NewChargePoint(stationID, centralSystemURL, ocpp.V16, ocpp.JSON, nil, handler) // or ocpp.SOAP
 if err != nil {
     fmt.Println("could not create charge point:", err)
     return
