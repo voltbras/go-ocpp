@@ -131,8 +131,8 @@ func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 		if csys.connsCount[cpID] == 0 {
 			delete(csys.conns, cpID)
 			csys.connChans[cpID] = make(chan struct{})
+			csys.connsConnected[cpID] = false
 		}
-		csys.connsConnected[cpID] = false
 		csys.connMux.Unlock()
 	}()
 
