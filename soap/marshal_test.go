@@ -1,8 +1,9 @@
 package soap
 
 import (
-	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
 	"testing"
+
+	"github.com/voltbras/go-ocpp/messages/v1x/cpreq"
 )
 
 const bootNotification = `

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/eduhenke/go-ocpp/messages"
-	"github.com/eduhenke/go-ocpp/soap"
+	"github.com/voltbras/go-ocpp/messages"
+	"github.com/voltbras/go-ocpp/soap"
 )
 
 type SOAP struct {

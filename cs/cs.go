@@ -8,14 +8,14 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/eduhenke/go-ocpp"
-	"github.com/eduhenke/go-ocpp/internal/log"
-	"github.com/eduhenke/go-ocpp/internal/service"
-	"github.com/eduhenke/go-ocpp/messages"
-	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
-	"github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
-	"github.com/eduhenke/go-ocpp/soap"
-	"github.com/eduhenke/go-ocpp/ws"
+	"github.com/voltbras/go-ocpp"
+	"github.com/voltbras/go-ocpp/internal/log"
+	"github.com/voltbras/go-ocpp/internal/service"
+	"github.com/voltbras/go-ocpp/messages"
+	"github.com/voltbras/go-ocpp/messages/v1x/cpreq"
+	"github.com/voltbras/go-ocpp/messages/v1x/cpresp"
+	"github.com/voltbras/go-ocpp/soap"
+	"github.com/voltbras/go-ocpp/ws"
 )
 
 type ChargePointRequestMetadata struct {

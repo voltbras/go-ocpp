@@ -8,15 +8,15 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/eduhenke/go-ocpp"
-	"github.com/eduhenke/go-ocpp/cp"
-	"github.com/eduhenke/go-ocpp/cs"
-	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
-	"github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
-	"github.com/eduhenke/go-ocpp/messages/v1x/csreq"
-	"github.com/eduhenke/go-ocpp/messages/v1x/csresp"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
+	"github.com/voltbras/go-ocpp"
+	"github.com/voltbras/go-ocpp/cp"
+	"github.com/voltbras/go-ocpp/cs"
+	"github.com/voltbras/go-ocpp/messages/v1x/cpreq"
+	"github.com/voltbras/go-ocpp/messages/v1x/cpresp"
+	"github.com/voltbras/go-ocpp/messages/v1x/csreq"
+	"github.com/voltbras/go-ocpp/messages/v1x/csresp"
 )
 
 func Test_Connection(t *testing.T) {
@@ -34,7 +34,7 @@ func Test_Connection(t *testing.T) {
 		cpointDisconnected <- cpID
 	})
 
-	go csys.Run(csysPort, func(req cpreq.ChargePointRequest, cpID string) (cpresp.ChargePointResponse, error) {
+	go csys.Run(csysPort, func(req cpreq.ChargePointRequest, metadata cs.ChargePointRequestMetadata) (cpresp.ChargePointResponse, error) {
 		switch req.(type) {
 		case *cpreq.Heartbeat:
 			return &cpresp.Heartbeat{}, nil

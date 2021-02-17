@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/eduhenke/go-ocpp/messages"
-	"github.com/eduhenke/go-ocpp/ws"
+	"github.com/voltbras/go-ocpp/messages"
+	"github.com/voltbras/go-ocpp/ws"
 )
 
 type JSON struct {

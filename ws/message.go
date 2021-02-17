@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/eduhenke/go-ocpp/messages"
+	"github.com/voltbras/go-ocpp/messages"
 )
 
 type Action string

@@ -2,7 +2,8 @@ package cpresp
 
 import (
 	"errors"
-	"github.com/eduhenke/go-ocpp/messages"
+
+	"github.com/voltbras/go-ocpp/messages"
 )
 
 // ChargePointResponse is a response coming from the central system to the chargepoint
@@ -14,7 +15,7 @@ type ChargePointResponse interface {
 type chargepointResponse struct{}
 
 func (cpreq *chargepointResponse) IsChargePointResponse() {}
-func (cpreq *chargepointResponse) IsResponse() {}
+func (cpreq *chargepointResponse) IsResponse()            {}
 
 var (
 	ErrorNotChargePointResponse = errors.New("not a chargepoint response")

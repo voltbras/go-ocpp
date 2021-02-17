@@ -1,10 +1,10 @@
 package service
 
 import (
-	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
-	"github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
-	"github.com/eduhenke/go-ocpp/soap"
-	"github.com/eduhenke/go-ocpp/ws"
+	"github.com/voltbras/go-ocpp/messages/v1x/cpreq"
+	"github.com/voltbras/go-ocpp/messages/v1x/cpresp"
+	"github.com/voltbras/go-ocpp/soap"
+	"github.com/voltbras/go-ocpp/ws"
 )
 
 type CentralSystem interface {

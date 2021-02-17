@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/eduhenke/go-ocpp"
-	"github.com/eduhenke/go-ocpp/cp"
-	"github.com/eduhenke/go-ocpp/messages/v1x/cpreq"
-	"github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
-	"github.com/eduhenke/go-ocpp/messages/v1x/csreq"
-	"github.com/eduhenke/go-ocpp/messages/v1x/csresp"
+	"github.com/voltbras/go-ocpp"
+	"github.com/voltbras/go-ocpp/cp"
+	"github.com/voltbras/go-ocpp/messages/v1x/cpreq"
+	"github.com/voltbras/go-ocpp/messages/v1x/cpresp"
+	"github.com/voltbras/go-ocpp/messages/v1x/csreq"
+	"github.com/voltbras/go-ocpp/messages/v1x/csresp"
 )
 
 func main() {

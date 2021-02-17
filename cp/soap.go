@@ -5,10 +5,10 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/eduhenke/go-ocpp/internal/log"
-	"github.com/eduhenke/go-ocpp/messages"
-	"github.com/eduhenke/go-ocpp/messages/v1x/csreq"
-	"github.com/eduhenke/go-ocpp/soap"
+	"github.com/voltbras/go-ocpp/internal/log"
+	"github.com/voltbras/go-ocpp/messages"
+	"github.com/voltbras/go-ocpp/messages/v1x/csreq"
+	"github.com/voltbras/go-ocpp/soap"
 )
 
 func handleSoap(ctx context.Context, port string, cshandler CentralSystemMessageHandler) error {

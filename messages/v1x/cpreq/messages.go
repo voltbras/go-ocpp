@@ -4,9 +4,9 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/eduhenke/go-ocpp/cpstatus"
-	"github.com/eduhenke/go-ocpp/messages"
-	"github.com/eduhenke/go-ocpp/messages/v1x/cpresp"
+	"github.com/voltbras/go-ocpp/cpstatus"
+	"github.com/voltbras/go-ocpp/messages"
+	"github.com/voltbras/go-ocpp/messages/v1x/cpresp"
 )
 
 // Authorize

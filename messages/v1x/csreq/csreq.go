@@ -2,7 +2,8 @@ package csreq
 
 import (
 	"errors"
-	"github.com/eduhenke/go-ocpp/messages"
+
+	"github.com/voltbras/go-ocpp/messages"
 )
 
 // CentralSystemRequest is a request coming from the central system to the chargepoint

@@ -10,9 +10,9 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/eduhenke/go-ocpp/internal"
-	"github.com/eduhenke/go-ocpp/internal/log"
-	"github.com/eduhenke/go-ocpp/messages"
+	"github.com/voltbras/go-ocpp/internal"
+	"github.com/voltbras/go-ocpp/internal/log"
+	"github.com/voltbras/go-ocpp/messages"
 
 	"github.com/google/uuid"
 )

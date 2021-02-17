@@ -2,7 +2,8 @@ package csresp
 
 import (
 	"errors"
-	"github.com/eduhenke/go-ocpp/messages"
+
+	"github.com/voltbras/go-ocpp/messages"
 )
 
 // CentralSystemResponse is a response coming from the chargepoint to the central system
@@ -14,7 +15,7 @@ type CentralSystemResponse interface {
 type centralSystemResponse struct{}
 
 func (csresp *centralSystemResponse) IsCentralSystemResponse() {}
-func (csresp *centralSystemResponse) IsResponse() {}
+func (csresp *centralSystemResponse) IsResponse()              {}
 
 var (
 	ErrorNotCentralSystemResponse = errors.New("not a central system response")

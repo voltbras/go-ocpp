@@ -10,14 +10,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/eduhenke/go-ocpp/internal"
-	"github.com/eduhenke/go-ocpp/internal/log"
-	"github.com/eduhenke/go-ocpp/messages"
-	"github.com/eduhenke/go-ocpp/messages/req"
 	"github.com/google/uuid"
+	"github.com/voltbras/go-ocpp/internal"
+	"github.com/voltbras/go-ocpp/internal/log"
+	"github.com/voltbras/go-ocpp/messages"
+	"github.com/voltbras/go-ocpp/messages/req"
 
-	"github.com/eduhenke/go-ocpp"
 	"github.com/gorilla/websocket"
+	"github.com/voltbras/go-ocpp"
 )
 
 type CallResponse struct {

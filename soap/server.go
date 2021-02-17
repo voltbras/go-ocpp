@@ -6,11 +6,11 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/eduhenke/go-ocpp/internal/log"
+	"github.com/voltbras/go-ocpp/internal/log"
 
-	"github.com/eduhenke/go-ocpp/messages"
+	"github.com/voltbras/go-ocpp/messages"
 
-	"github.com/eduhenke/go-ocpp"
+	"github.com/voltbras/go-ocpp"
 )
 
 func Handle(w http.ResponseWriter, r *http.Request, handle ocpp.MessageHandler) error {
