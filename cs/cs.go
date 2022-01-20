@@ -19,8 +19,9 @@ import (
 )
 
 type ChargePointRequestMetadata struct {
-	ChargePointID string
-	HTTPRequest   *http.Request
+	ChargePointID  string
+	ChargePointUrl string
+	HTTPRequest    *http.Request
 }
 
 // ChargePointMessageHandler handles the OCPP messages coming from the charger
@@ -167,14 +168,15 @@ func (csys *centralSystem) handleWebsocket(w http.ResponseWriter, r *http.Reques
 
 func (csys *centralSystem) handleSoap(w http.ResponseWriter, r *http.Request, cphandler ChargePointMessageHandler) {
 	log.Debug("New SOAP request")
-	err := soap.Handle(w, r, func(request messages.Request, cpID string) (messages.Response, error) {
+	err := soap.Handle(w, r, func(request messages.Request, cpID string, url string) (messages.Response, error) {
 		req, ok := request.(cpreq.ChargePointRequest)
 		if !ok {
 			return nil, errors.New("request is not a cprequest")
 		}
 		return cphandler(req, ChargePointRequestMetadata{
-			ChargePointID: cpID,
-			HTTPRequest:   r,
+			ChargePointID:  cpID,
+			ChargePointUrl: url,
+			HTTPRequest:    r,
 		})
 	})
 	if err != nil {

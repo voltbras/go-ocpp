@@ -30,7 +30,7 @@ func Handle(w http.ResponseWriter, r *http.Request, handle ocpp.MessageHandler) 
 		return errors.New("received message is not a request")
 	}
 
-	resp, err := handle(req, reqEnv.Header.ChargeBoxIdentity)
+	resp, err := handle(req, reqEnv.Header.ChargeBoxIdentity, reqEnv.Header.From.Address)
 	if err != nil {
 		log.Error("couldn't handle request: %w", err)
 	}

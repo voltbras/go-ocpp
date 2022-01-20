@@ -5,7 +5,7 @@ import (
 	"github.com/voltbras/go-ocpp/messages"
 )
 
-type MessageHandler func(request messages.Request, cpID string) (messages.Response, error)
+type MessageHandler func(request messages.Request, cpID string, url string) (messages.Response, error)
 
 type Version string
 
