@@ -32,7 +32,7 @@ type soapHandler struct{ cshandler CentralSystemMessageHandler }
 func (s soapHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Debug("New SOAP request")
 
-	err := soap.Handle(w, r, func(request messages.Request, cpID string) (messages.Response, error) {
+	err := soap.Handle(w, r, func(request messages.Request, cpID string, url string) (messages.Response, error) {
 		req, ok := request.(csreq.CentralSystemRequest)
 		if !ok {
 			return nil, errors.New("request is not a cprequest")
